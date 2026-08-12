@@ -22,7 +22,7 @@ USERS = [
     },
     {
         "username": "DefaultDude",
-        "email": "TestEmail2@test.com",
+        "email": "TestEmail2@test.com", 
         "password": "TestPassword2!",
         # No image - uses default
     },

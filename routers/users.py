@@ -1,5 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from typing import Annotated
+import random
+from email_utils import send_otp_email
 
 from fastapi import (
     APIRouter,
@@ -17,6 +19,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette.concurrency import run_in_threadpool
+from database import get_db
 
 import models
 from auth import (
@@ -28,6 +31,7 @@ from auth import (
     verify_password,
 )
 from config import settings
+from otp_store import otp_store
 from database import get_db
 from email_utils import send_password_reset_email
 from image_utils import delete_profile_image, process_profile_image
@@ -42,11 +46,108 @@ from schemas import (
     UserPrivate,
     UserPublic,
     UserUpdate,
+    SendOtpRequest,
+    VerifyOtpRequest,
 )
 
 router = APIRouter()
 
+@router.post("/verify-otp")
+async def verify_otp(
+    data: VerifyOtpRequest,
+    db: AsyncSession = Depends(get_db),
+):
 
+    record = otp_store.get(data.email)
+
+    if not record:
+        raise HTTPException(
+            status_code=400,
+            detail="OTP not found. Please request a new OTP.",
+        )
+
+    if datetime.utcnow() > record["expires"]:
+
+        del otp_store[data.email]
+
+        raise HTTPException(
+            status_code=400,
+            detail="OTP expired. Please request a new OTP.",
+        )
+
+    if record["otp"] != data.otp:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid OTP.",
+        )
+
+    try:
+
+        new_user = models.User(
+            username=record["username"],
+            email=data.email,
+            password_hash=hash_password(record["password"]),
+        )
+
+        db.add(new_user)
+
+        await db.commit()
+
+        await db.refresh(new_user)
+
+        del otp_store[data.email]
+
+        return {
+            "message": "Account created successfully"
+        }
+
+    except Exception:
+
+        await db.rollback()
+
+        raise
+@router.post("/send-otp")
+async def send_otp(data: SendOtpRequest):
+
+    try:
+        otp = str(random.randint(100000, 999999))
+
+        otp_store[data.email] = {
+            "otp": otp,
+            "expires": datetime.utcnow() + timedelta(minutes=5),
+            "username": data.username,
+            "password": data.password,
+        }
+
+        print("=================================")
+        print("OTP GENERATED")
+        print("Email:", data.email)
+        print("OTP:", otp)
+        print("=================================")
+
+        await send_otp_email(
+            data.email,
+            data.username,
+            otp,
+        )
+
+        return {
+            "message": "OTP sent successfully"
+        }
+
+    except Exception as e:
+
+        print("=================================")
+        print("SEND OTP ERROR")
+        print(type(e).__name__)
+        print(str(e))
+        print("=================================")
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to send OTP: {str(e)}"
+        )
 @router.post(
     "",
     response_model=UserPrivate,
@@ -220,6 +321,12 @@ async def reset_password(
     return {
         "message": "Password reset successfully. You can now log in with your new password.",
     }
+
+# @router.post("/send-otp")
+# async def send_otp(data: SendOtpRequest):
+
+# @router.post("/verify-otp")
+# async def verify_otp(data: VerifyOtpRequest):
 
 
 @router.patch("/me/password", status_code=status.HTTP_200_OK)

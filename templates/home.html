@@ -11,17 +11,33 @@
                          height="64"
                          loading="lazy">
                     <div class="flex-grow-1">
-                        <div class="article-metadata mb-2">
-                            <a class="me-2"
-                               href="{{ url_for("user_posts", user_id=post.author.id) }}">{{ post.author.username }}</a>
-                            <small class="text-body-secondary">{{ post.date_posted.strftime("%B %d, %Y") }}</small>
-                        </div>
-                        <h2>
-                            <a class="article-title"
-                               href="{{ url_for("post_page", post_id=post.id) }}">{{ post.title }}</a>
-                        </h2>
-                        <p class="article-content">{{ post.content }}</p>
-                    </div>
+                          <div class="article-metadata mb-2">
+                              <a class="me-2"
+                                href="{{ url_for('user_posts', user_id=post.author.id) }}">
+                                {{ post.author.username }}
+                              </a>
+                              <small class="text-body-secondary">
+                                  {{ post.date_posted.strftime("%B %d, %Y") }}
+                              </small>
+                          </div>
+
+                          <h2>
+                              <a class="article-title"
+                                href="{{ url_for('post_page', post_id=post.id) }}">
+                                {{ post.title }}
+                              </a>
+                          </h2>
+
+                          {% if post.image_file %}
+                          <img
+                              src="/media/post_pics/{{ post.image_file }}"
+                              alt="{{ post.title }}"
+                              class="img-fluid rounded mb-3"
+                              loading="lazy">
+                          {% endif %}
+
+                          <p class="article-content">{{ post.content }}</p>
+                      </div>
                 </div>
             </article>
         {% endfor %}
@@ -58,6 +74,12 @@
             <h2>
               <a class="article-title" href="/posts/${post.id}">${escapeHtml(post.title)}</a>
             </h2>
+            ${post.image_file ? `
+            <img
+                src="/media/post_pics/${post.image_file}"
+                class="img-fluid rounded mb-3"
+                alt="${escapeHtml(post.title)}">
+            ` : ''}
             <p class="article-content">${escapeHtml(post.content)}</p>
           </div>
         </div>

@@ -122,30 +122,178 @@
                 </div>
             </nav>
         </header>
-        <main role="main" class="container">
-            <div class="row">
-                <div class="col-md-8">
-                    {% block content %}
-                    {% endblock content %}
-                </div>
-                <aside class="col-md-4">
-                    <div class="content-section py-3 px-4 mb-4">
-                        <h3>Our Sidebar</h3>
-                        <p class="text-body-secondary">You can put any information here you'd like.</p>
-                        <ul class="list-group">
-                            <li class="list-group-item">Latest Posts</li>
-                            <li class="list-group-item">Announcements</li>
-                            <li class="list-group-item">Calendars</li>
-                            <li class="list-group-item">etc</li>
-                        </ul>
+        <main role="main" class="container py-4">
+
+                <!-- Main page layout -->
+                <div class="row g-4">
+
+                    <!-- Posts -->
+                    <div class="col-12 col-lg-8">
+
+                        {% block content %}
+                        {% endblock content %}
+
+                        <!-- Latest Posts Section -->
+                        <div id="latestPostsSection"
+                            class="content-section mt-4 d-none">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="mb-0">Latest Posts</h3>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        id="closeLatestPosts">
+                                    Close
+                                </button>
+                            </div>
+
+                            <div id="latestPostsContainer">
+                                <p class="text-body-secondary">
+                                    Loading posts...
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <!-- Calendar Section -->
+                        <div id="calendarSection"
+                            class="content-section mt-4 d-none">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="mb-0">Calendar</h3>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        id="closeCalendar">
+                                    Close
+                                </button>
+                            </div>
+
+                            <div class="mb-4">
+
+                                <label for="calendarDate" class="form-label">
+                                    Select a date
+                                </label>
+
+                                <input type="date"
+                                    id="calendarDate"
+                                    class="form-control">
+
+                            </div>
+
+                            <div id="calendarPosts">
+
+                                <p class="text-body-secondary">
+                                    Select a date to see posts.
+                                </p>
+
+                            </div>
+
+                        </div>
+
                     </div>
-                </aside>
-            </div>
-        </main>
+
+
+                    <!-- Sidebar -->
+                    <div class="col-12 col-lg-4">
+
+                        <aside class="sidebar">
+
+                            <div class="content-section py-3 px-4 mb-4">
+
+                                <h3>Our Sidebar</h3>
+
+                                <p class="text-body-secondary">
+                                    You can put any information here you'd like.
+                                </p>
+
+                                <div class="list-group">
+
+                                    <!-- Latest Posts -->
+                                    <a href="#"
+                                    id="latestPostsLink"
+                                    class="list-group-item list-group-item-action">
+
+                                        Latest Posts
+
+                                    </a>
+
+
+                                    <!-- Announcements -->
+                                    <a href="#"
+                                    id="announcementsLink"
+                                    class="list-group-item list-group-item-action">
+
+                                        Announcements
+
+                                    </a>
+
+
+                                    <!-- Calendar -->
+                                    <a href="#"
+                                    id="calendarLink"
+                                    class="list-group-item list-group-item-action">
+
+                                        Calendars
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </aside>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Announcements Section -->
+                <div class="row">
+
+                    <div class="col-12">
+
+                        <div id="announcementsSection"
+                            class="content-section mt-4 d-none">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                                <h3 class="mb-0">
+                                    Latest News & Announcements
+                                </h3>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        id="closeAnnouncements">
+
+                                    Close
+
+                                </button>
+
+                            </div>
+
+
+                            <div id="announcementsContainer">
+
+                                <p class="text-body-secondary">
+                                    Loading announcements...
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+    </main>
         <footer class="mt-auto py-3 bg-body-tertiary border-top">
             <div class="container text-center">
                 <p class="text-body-secondary mb-0">
-                    © <span id="year"></span> Corey Schafer
+                    © <span id="year"></span> Kumar Kaushik
                 </p>
             </div>
         </footer>
@@ -171,10 +319,35 @@
                                 <input type="text" class="form-control" id="title" name="title" required>
                             </div>
                             <div class="mb-3">
+                                <label for="content" class="form-label">Short Content</label>
+                                <textarea class="form-control" id="short_content" name="short_content" rows="5" required></textarea>
+                            </div>
+                            <div class="mb-3">
                                 <label for="content" class="form-label">Content</label>
                                 <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
                             </div>
-                        </div>
+                           
+                            <div class="mb-4">
+                                <h5>Post Picture</h5>
+                                <!-- Preview container -->
+                                <div class="mb-3">
+                                    <img id="imagePreview"
+                                        class="rounded-circle d-none object-fit-cover"
+                                        alt="Image preview"
+                                        width="150"
+                                        height="150">
+                                </div>
+                                <!-- File input and upload button -->
+                                <div class="d-flex gap-2 align-items-start">
+                                    <input type="file"
+                                        class="form-control file-input-sm"
+                                        id="pictureInput"
+                                        accept="image/*">
+                                    <!-- <button type="button" class="btn btn-primary" id="uploadPictureBtn" disabled>Upload</button> -->
+                                </div>
+                                <small class="text-body-secondary">Maximum file size: 5MB. Supported formats: JPEG, PNG, GIF, WebP.</small>
+                            </div>
+                        
                         <div class="modal-footer">
                             <button type="button"
                                     class="btn btn-outline-secondary"
@@ -263,9 +436,249 @@
             // Initialize
             setTheme(localStorage.getItem('theme') || 'auto');
         </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+                const calendarLink = document.getElementById("calendarLink");
+                const calendarSection = document.getElementById("calendarSection");
+                const calendarDate = document.getElementById("calendarDate");
+                const calendarPosts = document.getElementById("calendarPosts");
+                const closeCalendar = document.getElementById("closeCalendar");
+
+
+                // Click Calendars
+                if (calendarLink) {
+
+                    calendarLink.addEventListener("click", function (event) {
+
+                        event.preventDefault();
+
+                        calendarSection.classList.remove("d-none");
+
+                        calendarSection.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+
+                    });
+
+                }
+
+
+                // When user selects a date
+                if (calendarDate) {
+
+                    calendarDate.addEventListener("change", async function () {
+
+                        const selectedDate = calendarDate.value;
+
+                        if (!selectedDate) {
+                            return;
+                        }
+
+                        calendarPosts.innerHTML = `
+                            <p>Loading posts...</p>
+                        `;
+
+
+                        try {
+
+                            const response = await fetch(
+                                `/api/posts/date/${selectedDate}`
+                            );
+
+
+                            if (!response.ok) {
+
+                                if (response.status === 404) {
+
+                                    calendarPosts.innerHTML = `
+                                        <div class="alert alert-info">
+                                            No posts found for this date.
+                                        </div>
+                                    `;
+
+                                    return;
+                                }
+
+                                throw new Error("Failed to load posts");
+
+                            }
+
+
+                            const posts = await response.json();
+
+
+                            if (!posts || posts.length === 0) {
+
+                                calendarPosts.innerHTML = `
+                                    <div class="alert alert-info">
+                                        No posts found for ${selectedDate}.
+                                    </div>
+                                `;
+
+                                return;
+                            }
+
+
+                            calendarPosts.innerHTML = "";
+
+
+                            posts.forEach(function (post) {
+
+                                const article = document.createElement("article");
+
+                                article.className =
+                                    "content-section py-3 px-4 mb-3";
+
+
+                               article.innerHTML = `
+
+                                <div class="d-flex flex-column flex-sm-row align-items-center align-items-sm-start gap-3">
+
+                                    <img
+                                        class="rounded-circle flex-shrink-0"
+                                        src="${post.author.image_path || '/static/images/default.jpg'}"
+                                        alt="${post.author.username}"
+                                        width="50"
+                                        height="50"
+                                        style="object-fit: cover; max-width: 100%;"
+                                        onerror="this.src='/static/images/default.jpg'"
+                                    >
+
+                                    <div class="flex-grow-1 overflow-hidden w-100">
+
+                                        <div class="article-metadata mb-2">
+
+                                            <strong>
+                                                ${post.author.username}
+                                            </strong>
+
+                                            <small class="text-body-secondary ms-2">
+
+                                                ${new Date(
+                                                    post.date_posted
+                                                ).toLocaleDateString()}
+
+                                            </small>
+
+                                        </div>
+
+
+                                        <h4>
+
+                                            <a href="/posts/${post.id}">
+
+                                                ${post.title}
+
+                                            </a>
+
+                                        </h4>
+
+
+                                        ${
+                                            post.image_file
+                                            ?
+                                            `
+                                            <img
+                                                src="/media/post_pics/${post.image_file}"
+                                                class="img-fluid rounded mb-3"
+                                                alt="${post.title}"
+                                            >
+                                            `
+                                            :
+                                            ""
+                                        }
+
+
+                                        <p class="article-content">
+
+                                            ${post.content}
+
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            `;
+                            calendarPosts.innerHTML = `
+                                <div class="alert alert-danger">
+                                    Failed to load posts for this date.
+                                </div>
+                            `;
+
+                        }
+
+                    });
+
+                }
+
+
+                // Close calendar
+                if (closeCalendar) {
+
+                    closeCalendar.addEventListener("click", function () {
+
+                        calendarSection.classList.add("d-none");
+
+                    });
+
+                }
+
+            });
+        </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+                const announcementsLink =
+                    document.getElementById("announcementsLink");
+
+                const announcementsSection =
+                    document.getElementById("announcementsSection");
+
+                const closeAnnouncements =
+                    document.getElementById("closeAnnouncements");
+
+
+                // Open Announcements
+                if (announcementsLink) {
+
+                    announcementsLink.addEventListener("click", function (event) {
+
+                        event.preventDefault();
+
+                        // Show announcements
+                        announcementsSection.classList.remove("d-none");
+
+                        // Scroll to announcements
+                        announcementsSection.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+
+                    });
+
+                }
+
+
+                // Close Announcements
+                if (closeAnnouncements) {
+
+                    closeAnnouncements.addEventListener("click", function () {
+
+                        announcementsSection.classList.add("d-none");
+
+                    });
+
+                }
+
+            });
+        </script>
         <!-- Auth State Management -->
         <script type="module">
             import { getCurrentUser } from '/static/js/auth.js';
+            import { getToken, clearUserCache } from '/static/js/auth.js';
 
             async function updateAuthUI() {
                 const user = await getCurrentUser();
@@ -288,83 +701,404 @@
 
             updateAuthUI();
         </script>
+        <script>
+                document.addEventListener("DOMContentLoaded", function () {
+
+                    const latestPostsLink = document.getElementById("latestPostsLink");
+                    const latestPostsSection = document.getElementById("latestPostsSection");
+                    const latestPostsContainer = document.getElementById("latestPostsContainer");
+                    const closeLatestPosts = document.getElementById("closeLatestPosts");
+
+
+                    if (latestPostsLink) {
+
+                        latestPostsLink.addEventListener("click", async function (event) {
+
+                            event.preventDefault();
+
+                            // Show the section
+                            latestPostsSection.classList.remove("d-none");
+
+                            // Show loading message
+                            latestPostsContainer.innerHTML = `
+                                <p>Loading latest posts...</p>
+                            `;
+
+                            try {
+
+                                const response = await fetch(
+                                    "/api/posts?skip=0&limit=10"
+                                );
+
+                                if (!response.ok) {
+                                    throw new Error("Failed to load posts");
+                                }
+
+                                const data = await response.json();
+
+                                if (!data.posts || data.posts.length === 0) {
+
+                                    latestPostsContainer.innerHTML = `
+                                        <p>No posts available.</p>
+                                    `;
+
+                                    return;
+                                }
+
+
+                                latestPostsContainer.innerHTML = "";
+
+
+                                data.posts.forEach(function (post) {
+
+                                    const postElement = document.createElement("article");
+
+                                    postElement.className =
+                                        "content-section py-3 px-4 mb-3";
+
+
+                                    postElement.innerHTML = `
+
+                                        <div class="d-flex align-items-start gap-3">
+
+                                            <img
+                                                class="rounded-circle"
+                                                src="${post.author.image_path}"
+                                                alt="${post.author.username}"
+                                                width="50"
+                                                style="object-fit: cover; max-width: 100%;"
+                                                height="50"
+                                            >
+
+                                            <divclass="flex-grow-1 overflow-hidden w-100" >
+
+                                                <div class="article-metadata mb-2">
+
+                                                    <strong>
+                                                        ${post.author.username}
+                                                    </strong>
+
+                                                    <small class="text-body-secondary ms-2">
+                                                        ${new Date(post.date_posted).toLocaleDateString()}
+                                                    </small>
+
+                                                </div>
+
+
+                                                <h4>
+                                                    <a href="/posts/${post.id}">
+                                                        ${post.title}
+                                                    </a>
+                                                </h4>
+
+
+                                                ${
+                                                    post.image_file
+                                                    ?
+                                                    `
+                                                    <img
+                                                        src="/media/post_pics/${post.image_file}"
+                                                        class="img-fluid rounded mb-3 d-block"
+                                                        style="width: 100%; height: auto; max-height: 500px; object-fit: contain;"
+                                                        alt="${post.title}"
+                                                    >
+                                                    `
+                                                    :
+                                                    ""
+                                                }
+
+
+                                                <p>
+                                                    ${post.content}
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+                                    `;
+
+
+                                    latestPostsContainer.appendChild(postElement);
+
+                                });
+
+
+                                // Scroll to the posts
+                                latestPostsSection.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "start"
+                                });
+
+
+                            } catch (error) {
+
+                                console.error(
+                                    "Error loading latest posts:",
+                                    error
+                                );
+
+                                latestPostsContainer.innerHTML = `
+                                    <div class="alert alert-danger">
+                                        Failed to load latest posts.
+                                        Please try again.
+                                    </div>
+                                `;
+                            }
+
+                        });
+
+                    }
+
+
+                    if (closeLatestPosts) {
+
+                        closeLatestPosts.addEventListener("click", function () {
+
+                            latestPostsSection.classList.add("d-none");
+
+                        });
+
+                    }
+
+                });
+        </script>
         <!-- Create Post Form Handler -->
         <script type="module">
             import {
             getErrorMessage,
             hideModal,
-            showModal,
-            } from "/static/js/utils.js";
-            import { getToken } from '/static/js/auth.js';
+            showModal, } from "/static/js/utils.js";
+            import { getToken, getCurrentUser, clearUserCache } from '/static/js/auth.js';
+              let currentUserId = null;
+              let postId = null;
 
+                async function loadUserData() {
+                    const user = await getCurrentUser();
+
+                    if (!user) {
+                        // Don't redirect if already on login or register page
+                        if (
+                            window.location.pathname !== "/login" &&
+                            window.location.pathname !== "/register"
+                        ) {
+                            window.location.href = "/login";
+                        }
+                        return;
+                    }
+
+                    
+                    currentUserId = user.id;
+
+                    console.log("Logged-in user:", user);
+                    console.log("Current user ID:", postId);
+                }
+
+                loadUserData();
             const createForm = document.getElementById("createPostForm");
-
-            createForm.addEventListener("submit", async (event) => {
-            // Stop default form submission - we'll handle it with JavaScript
-            event.preventDefault();
-
-            const token = getToken();
-            if (!token) {
-                window.location.href = '/login';
-                return;
-            }
-
-            // Gather form values into a plain object {title: "...", content: "..."}
-            const formData = new FormData(createForm);
-            const postData = Object.fromEntries(formData.entries());
+            // const uploadBtn = document.getElementById('uploadPictureBtn');
+            const pictureInput = document.getElementById('pictureInput');
+            const imagePreview = document.getElementById('imagePreview');
 
             
+            
+            pictureInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
 
-            try {
-                // POST to our API as JSON
-                const response = await fetch("/api/posts", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(postData),
+                    if (file) {
+                        const reader = new FileReader();
+
+                        reader.onload = (e) => {
+                            imagePreview.src = e.target.result;
+                            imagePreview.classList.remove('d-none');
+                        };
+
+                        reader.readAsDataURL(file);
+                    } else {
+                        imagePreview.classList.add('d-none');
+                    }
                 });
+        //     uploadBtn.addEventListener('click', async () => {
+        //      const token = getToken();
+        //      if (!token) {
+        //     window.location.href = '/login';
+        //      return;
+        //      }
 
-                if (response.status === 401) {
-                    window.location.href = '/login';
+        //     const file = pictureInput.files[0];
+
+        //      if (!file) {
+        //         return;
+        //      }
+
+        //      // Use FormData for file uploads
+        //      const formData = new FormData();
+        //         formData.append('file', file);
+
+        //         uploadBtn.disabled = true;
+        //         uploadBtn.textContent = 'Uploading...';
+
+        //      try {
+                
+        //      const response = await fetch(`/api/posts/${postId}/picture`, {
+        //             method: 'PATCH',
+        //             headers: {
+        //             // Don't set Content-Type — browser sets multipart boundary automatically 
+        //             'Authorization': `Bearer ${token}`,
+        //             },
+        //             body: formData,
+        //     });
+        //     postId = post.id;
+        //     const data = await response.json();
+        //     if (response.ok) {
+        //             console.log(data);
+        //          }
+
+        //      if (response.status === 401) {
+        //         window.location.href = '/login';
+        //         return;
+        //     }
+
+        //     if (response.status === 403) {
+        //        document.getElementById('errorMessage').textContent =
+        //        'You are not authorized to update this profile picture.';
+        //         showModal('errorModal');
+        //     return;
+        //  }
+
+        //     if (response.ok) {
+        //         const data = await response.json();
+
+        //    clearUserCache();
+
+                
+
+        //         pictureInput.value = '';
+        //        imagePreview.classList.add('d-none');
+
+        //         document.getElementById('successMessage').textContent =
+        //     'Profile picture updated successfully!';
+        //          showModal('successModal');
+        //     } else {
+        //      const error = await response.json();
+        //        document.getElementById('errorMessage').textContent = getErrorMessage(error);
+        //        showModal('errorModal');
+        //     }
+        //      } catch (error) {
+        //      document.getElementById('errorMessage').textContent =
+        //          'Network error. Please check your connection and try again.';
+        //     showModal('errorModal');
+        //      } finally {
+        //  uploadBtn.disabled = pictureInput.files.length === 0;
+        //  uploadBtn.textContent = 'Upload';
+        //      }
+        //  });
+
+        
+
+
+            createForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                const token = getToken();
+
+                if (!token) {
+                    window.location.href = "/login";
                     return;
                 }
 
-                if (response.ok) {
-                const data = await response.json();
-                document.getElementById("successMessage").textContent =
-                    `Post "${data.title}" created successfully!`;
+                const formData = new FormData(createForm);
+                const postData = Object.fromEntries(formData.entries());
 
-                hideModal("createPostModal");
-                showModal("successModal");
+                try {
+                    // Create Post
+                    const response = await fetch("/api/posts", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`,
+                        },
+                        body: JSON.stringify(postData),
+                    });
 
-                // Clear form
-                createForm.reset();
+                    if (response.status === 401) {
+                        window.location.href = "/login";
+                        return;
+                    }
 
-                // Reload page after modal is hidden to show new post
-                document
-                    .getElementById("successModal")
-                    .addEventListener(
-                    "hidden.bs.modal",
-                    () => {
-                        window.location.reload();
-                    },
-                    { once: true },
-                    );
-                } else {
-                const error = await response.json();
-                document.getElementById("errorMessage").textContent =
-                    getErrorMessage(error);
+                    const post = await response.json();
 
-                hideModal("createPostModal");
-                showModal("errorModal");
+                    if (!response.ok) {
+                        document.getElementById("errorMessage").textContent =
+                            getErrorMessage(post);
+
+                        hideModal("createPostModal");
+                        showModal("errorModal");
+                        return;
+                    }
+
+                    console.log("POST CREATED:", post);
+
+                    // Upload image if selected
+                    const file = pictureInput.files[0];
+
+                    if (file) {
+                        const imageFormData = new FormData();
+                        imageFormData.append("file", file);
+
+                        const uploadResponse = await fetch(
+                            `/api/posts/${post.id}/picture`,
+                            {
+                                method: "PATCH",
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                },
+                                body: imageFormData,
+                            }
+                        );
+
+                        if (!uploadResponse.ok) {
+                            const uploadError = await uploadResponse.json();
+
+                            document.getElementById("errorMessage").textContent =
+                                getErrorMessage(uploadError);
+
+                            hideModal("createPostModal");
+                            showModal("errorModal");
+                            return;
+                        }
+
+                        console.log("POST IMAGE UPLOADED");
+                    }
+
+                    document.getElementById("successMessage").textContent =
+                        `Post "${post.title}" created successfully!`;
+
+                    hideModal("createPostModal");
+                    showModal("successModal");
+
+                    createForm.reset();
+
+                    imagePreview.classList.add("d-none");
+
+                    document
+                        .getElementById("successModal")
+                        .addEventListener(
+                            "hidden.bs.modal",
+                            () => {
+                                window.location.reload();
+                            },
+                            { once: true }
+                        );
+
+                } catch (error) {
+                    console.error(error);
+
+                    document.getElementById("errorMessage").textContent =
+                        `Error: ${error.message}`;
+
+                    hideModal("createPostModal");
+                    showModal("errorModal");
                 }
-            } catch (error) {
-                document.getElementById("errorMessage").textContent =
-                "Network error. Please check your connection and try again.";
-                showModal("errorModal");
-            }
             });
         </script>
         {% block scripts %}
