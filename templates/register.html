@@ -37,6 +37,33 @@
                        minlength="8">
                 <div id="passwordError" class="text-danger d-none">Passwords do not match.</div>
             </div>
+            <div class="mb-3">
+                <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    id="sendOtpBtn">
+                    Send OTP
+                </button>
+            </div>
+
+            <div class="mb-3">
+                <label for="otp" class="form-label">OTP</label>
+
+               <input
+                    type="text"
+                    class="form-control"
+                    id="otp"
+                    maxlength="6">
+
+                <button
+                    type="button"
+                    class="btn btn-outline-success mt-2"
+                    id="verifyOtpBtn">
+                    Verify OTP
+                </button>
+
+                <div id="otpStatus" class="mt-2"></div>
+            </div>
             <button type="submit" class="btn btn-primary">Register</button>
         </form>
         <p class="mt-3">
@@ -45,69 +72,470 @@
     </div>
 {% endblock content %}
 {% block scripts %}
-    <script type="module">
-      import { getErrorMessage, showModal } from '/static/js/utils.js';
+<script type="module">
+    import { showModal } from '/static/js/utils.js';
 
-      const registerForm = document.getElementById('registerForm');
-      const passwordInput = document.getElementById('password');
-      const confirmPasswordInput = document.getElementById('confirmPassword');
-      const passwordError = document.getElementById('passwordError');
+    const registerForm = document.getElementById('registerForm');
 
-      // Check passwords match on input
-      confirmPasswordInput.addEventListener('input', () => {
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+
+    const passwordError = document.getElementById('passwordError');
+
+    const sendOtpBtn = document.getElementById('sendOtpBtn');
+    const otpInput = document.getElementById('otp');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+    const otpStatus = document.getElementById('otpStatus');
+
+    let otpVerified = false;
+
+
+    // =========================================================
+    // PASSWORD MATCH CHECK
+    // =========================================================
+
+    confirmPasswordInput.addEventListener('input', () => {
+
         if (passwordInput.value !== confirmPasswordInput.value) {
-          passwordError.classList.remove('d-none');
-          confirmPasswordInput.setCustomValidity('Passwords do not match');
+
+            passwordError.classList.remove('d-none');
+
+            confirmPasswordInput.setCustomValidity(
+                'Passwords do not match'
+            );
+
         } else {
-          passwordError.classList.add('d-none');
-          confirmPasswordInput.setCustomValidity('');
+
+            passwordError.classList.add('d-none');
+
+            confirmPasswordInput.setCustomValidity('');
         }
-      });
+    });
 
-      registerForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
 
-        // Check passwords match
-        if (passwordInput.value !== confirmPasswordInput.value) {
-          passwordError.classList.remove('d-none');
-          return;
+    // =========================================================
+    // SEND OTP
+    // =========================================================
+
+    sendOtpBtn.addEventListener('click', async () => {
+
+        const username = usernameInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+
+        // -------------------------
+        // Validation
+        // -------------------------
+
+        if (!username) {
+            alert('Please enter username.');
+            usernameInput.focus();
+            return;
         }
 
-        const formData = new FormData(registerForm);
-        const userData = {
-          username: formData.get('username'),
-          email: formData.get('email'),
-          password: formData.get('password'),
-        };
+        if (!email) {
+            alert('Please enter email.');
+            emailInput.focus();
+            return;
+        }
+
+        if (!password) {
+            alert('Please enter password.');
+            passwordInput.focus();
+            return;
+        }
+
+        if (password.length < 8) {
+            alert('Password must be at least 8 characters.');
+            passwordInput.focus();
+            return;
+        }
+
+        if (password !== confirmPassword) {
+
+            passwordError.classList.remove('d-none');
+
+            alert('Passwords do not match.');
+
+            return;
+        }
+
+
+        // -------------------------
+        // Disable button
+        // -------------------------
+
+        sendOtpBtn.disabled = true;
+        sendOtpBtn.textContent = 'Sending OTP...';
+
+        otpStatus.textContent = '';
+
 
         try {
-          const response = await fetch('/api/users', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData),
-          });
 
-          if (response.ok) {
-            // Show success modal and redirect to login
-            document.getElementById('successMessage').textContent =
-              'Account created successfully! Please login.';
-            showModal('successModal');
+            console.log('Sending OTP for:', email);
 
-            document.getElementById('successModal').addEventListener('hidden.bs.modal', () => {
-              window.location.href = '/login';
-            }, { once: true });
-          } else {
-            const error = await response.json();
-            document.getElementById('errorMessage').textContent = getErrorMessage(error);
-            showModal('errorModal');
-          }
+
+            const response = await fetch(
+                '/api/users/send-otp',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                }
+            );
+
+
+            // =================================================
+            // IMPORTANT:
+            // Read response as TEXT first.
+            // =================================================
+
+            const responseText = await response.text();
+
+            console.log(
+                'Send OTP status:',
+                response.status
+            );
+
+            console.log(
+                'Send OTP response:',
+                responseText
+            );
+
+
+            // =================================================
+            // Try to convert response to JSON
+            // =================================================
+
+            let data = null;
+
+            try {
+
+                if (responseText) {
+                    data = JSON.parse(responseText);
+                }
+
+            } catch (jsonError) {
+
+                console.error(
+                    'Server did not return JSON:',
+                    responseText
+                );
+
+                otpStatus.textContent =
+                    `Server error (${response.status}): ${responseText}`;
+
+                otpStatus.classList.remove('text-success');
+                otpStatus.classList.add('text-danger');
+
+                return;
+            }
+
+
+            // =================================================
+            // SUCCESS
+            // =================================================
+
+            if (response.ok) {
+
+                otpStatus.textContent =
+                    data?.message ||
+                    'OTP sent successfully. Check your email.';
+
+                otpStatus.classList.remove('text-danger');
+                otpStatus.classList.add('text-success');
+
+                otpInput.focus();
+
+                return;
+            }
+
+
+            // =================================================
+            // ERROR
+            // =================================================
+
+            otpStatus.textContent =
+                data?.detail ||
+                data?.message ||
+                `Failed to send OTP. Server returned ${response.status}.`;
+
+            otpStatus.classList.remove('text-success');
+            otpStatus.classList.add('text-danger');
+
+
         } catch (error) {
-          document.getElementById('errorMessage').textContent =
-            'Network error. Please check your connection and try again.';
-          showModal('errorModal');
+
+            console.error(
+                'Send OTP JavaScript error:',
+                error
+            );
+
+            otpStatus.textContent =
+                'Network error. Please check whether the FastAPI server is running.';
+
+            otpStatus.classList.remove('text-success');
+            otpStatus.classList.add('text-danger');
+
+        } finally {
+
+            sendOtpBtn.disabled = false;
+            sendOtpBtn.textContent = 'Send OTP';
         }
-      });
-    </script>
+    });
+
+
+    // =========================================================
+    // VERIFY OTP
+    // =========================================================
+
+    verifyOtpBtn.addEventListener('click', async () => {
+
+        const email = emailInput.value.trim();
+        const otp = otpInput.value.trim();
+
+
+        if (!email) {
+
+            alert('Please enter your email first.');
+
+            emailInput.focus();
+
+            return;
+        }
+
+
+        if (!otp || !/^\d{6}$/.test(otp)) {
+
+            alert('Please enter the 6-digit OTP.');
+
+            otpInput.focus();
+
+            return;
+        }
+
+
+        verifyOtpBtn.disabled = true;
+        verifyOtpBtn.textContent = 'Verifying...';
+
+        otpStatus.textContent = '';
+
+
+        try {
+
+            console.log('Verifying OTP for:', email);
+
+
+            const response = await fetch(
+                '/api/users/verify-otp',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        email: email,
+                        otp: otp
+                    })
+                }
+            );
+
+
+            // =================================================
+            // Read response as TEXT first
+            // =================================================
+
+            const responseText = await response.text();
+
+            console.log(
+                'Verify OTP status:',
+                response.status
+            );
+
+            console.log(
+                'Verify OTP response:',
+                responseText
+            );
+
+
+            let data = null;
+
+
+            try {
+
+                if (responseText) {
+                    data = JSON.parse(responseText);
+                }
+
+            } catch (jsonError) {
+
+                console.error(
+                    'Verify OTP response is not JSON:',
+                    responseText
+                );
+
+                otpVerified = false;
+
+                otpStatus.textContent =
+                    `Server error (${response.status}): ${responseText}`;
+
+                otpStatus.classList.remove('text-success');
+                otpStatus.classList.add('text-danger');
+
+                return;
+            }
+
+
+            // =================================================
+            // SUCCESS
+            // =================================================
+
+            if (response.ok) {
+
+                otpVerified = true;
+
+                otpStatus.textContent =
+                    data?.message ||
+                    'OTP verified successfully. Account created!';
+
+                otpStatus.classList.remove('text-danger');
+                otpStatus.classList.add('text-success');
+
+                verifyOtpBtn.disabled = true;
+                otpInput.disabled = true;
+
+                sendOtpBtn.disabled = true;
+
+                return;
+            }
+
+
+            // =================================================
+            // INVALID OTP / BACKEND ERROR
+            // =================================================
+
+            otpVerified = false;
+
+            otpStatus.textContent =
+                data?.detail ||
+                data?.message ||
+                'Invalid OTP. Please try again.';
+
+            otpStatus.classList.remove('text-success');
+            otpStatus.classList.add('text-danger');
+
+
+        } catch (error) {
+
+            console.error(
+                'Verify OTP JavaScript error:',
+                error
+            );
+
+            otpVerified = false;
+
+            otpStatus.textContent =
+                'Network error. Please check whether the FastAPI server is running.';
+
+            otpStatus.classList.remove('text-success');
+            otpStatus.classList.add('text-danger');
+
+        } finally {
+
+            if (!otpVerified) {
+
+                verifyOtpBtn.disabled = false;
+                verifyOtpBtn.textContent = 'Verify OTP';
+
+            } else {
+
+                verifyOtpBtn.textContent = 'Verified';
+            }
+        }
+    });
+
+
+    // =========================================================
+    // REGISTER BUTTON
+    // =========================================================
+
+    registerForm.addEventListener('submit', async (event) => {
+
+        event.preventDefault();
+
+
+        // -------------------------
+        // Check password
+        // -------------------------
+
+        if (passwordInput.value !== confirmPasswordInput.value) {
+
+            passwordError.classList.remove('d-none');
+
+            confirmPasswordInput.focus();
+
+            return;
+        }
+
+
+        // -------------------------
+        // Check OTP
+        // -------------------------
+
+        if (!otpVerified) {
+
+            document.getElementById(
+                'errorMessage'
+            ).textContent =
+                'Please verify OTP first.';
+
+            showModal('errorModal');
+
+            return;
+        }
+
+
+        // =================================================
+        // Account was already created by verify-otp
+        // =================================================
+
+        document.getElementById(
+            'successMessage'
+        ).textContent =
+            'Account created successfully! Please login.';
+
+
+        showModal('successModal');
+
+
+        document.getElementById(
+            'successModal'
+        ).addEventListener(
+            'hidden.bs.modal',
+            () => {
+
+                window.location.href = '/login';
+
+            },
+            { once: true }
+        );
+
+    });
+
+</script>
 {% endblock scripts %}

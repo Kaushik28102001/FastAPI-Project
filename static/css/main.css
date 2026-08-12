@@ -293,3 +293,243 @@ a.article-title:focus {
 .modal-header.bg-danger .modal-title {
   color: #ffffff !important;
 }
+
+.rich-content{
+    line-height:1.9;
+    font-size:1.15rem;
+}
+
+.rich-content h1,
+.rich-content h2,
+.rich-content h3{
+    margin-top:2rem;
+    margin-bottom:1rem;
+    font-weight:700;
+}
+
+.rich-content p{
+    margin-bottom:1.5rem;
+}
+
+.rich-content img{
+    max-width:100%;
+    border-radius:15px;
+    margin:20px 0;
+}
+
+.rich-content blockquote{
+    border-left:5px solid #6366f1;
+    padding-left:20px;
+    font-style:italic;
+    color:#555;
+}
+
+.rich-content pre{
+    background:#111827;
+    color:white;
+    padding:20px;
+    border-radius:15px;
+    overflow:auto;
+}
+
+/* ========================================
+   RESPONSIVE LAYOUT
+======================================== */
+
+/* Main container */
+main.container {
+    width: 100%;
+}
+
+
+/* Prevent images from overflowing */
+img {
+    max-width: 100%;
+}
+
+
+/* Post cards */
+.content-section {
+    width: 100%;
+    overflow: hidden;
+}
+
+
+/* Post image */
+.post-image,
+.article-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+
+/* Sidebar */
+.sidebar {
+    width: 100%;
+}
+
+
+/* Sidebar remains normal on smaller devices */
+@media (min-width: 992px) {
+
+    .sidebar {
+        position: sticky;
+        top: 90px;
+    }
+
+}
+
+
+/* ========================================
+   TABLET
+======================================== */
+
+@media (max-width: 991px) {
+
+    main.container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .content-section {
+        padding: 20px !important;
+    }
+
+}
+
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 767px) {
+
+    main.container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+
+    /* Navbar spacing */
+    .navbar-brand {
+        font-size: 1.3rem;
+    }
+
+
+    /* Cards */
+    .content-section {
+        padding: 15px !important;
+        margin-bottom: 16px !important;
+    }
+
+
+    /* Article layout */
+    .content-section .d-flex.align-items-start {
+        gap: 12px !important;
+    }
+
+
+    /* Profile pictures smaller */
+    .article-img,
+    .rounded-circle {
+        width: 45px !important;
+        height: 45px !important;
+        flex-shrink: 0;
+    }
+
+
+    /* Post title */
+    .article-title,
+    article h2,
+    article h4 {
+        font-size: 1.25rem;
+        word-break: break-word;
+    }
+
+
+    /* Post content */
+    .article-content {
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+
+    /* Latest post and calendar images */
+    #latestPostsContainer img,
+    #calendarPosts img {
+        max-width: 100%;
+        height: auto;
+    }
+
+
+    /* Sidebar buttons */
+    .list-group-item {
+        padding: 14px 15px;
+    }
+
+
+    /* Calendar date field */
+    #calendarDate {
+        width: 100%;
+    }
+
+
+    /* Modal width */
+    .modal-dialog {
+        margin: 10px;
+    }
+
+
+    /* Create post image preview */
+    #imagePreview {
+        width: 120px !important;
+        height: 120px !important;
+    }
+
+}
+
+
+/* ========================================
+   VERY SMALL MOBILE DEVICES
+======================================== */
+
+@media (max-width: 480px) {
+
+    main.container {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+
+    .content-section {
+        padding: 12px !important;
+    }
+
+
+    /* Stack author image and content if needed */
+    article .d-flex.align-items-start {
+        gap: 10px !important;
+    }
+
+
+    .article-img {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+
+    article h2 {
+        font-size: 1.1rem;
+    }
+
+
+    article h4 {
+        font-size: 1rem;
+    }
+
+
+    .article-metadata {
+        font-size: 0.85rem;
+    }
+
+}

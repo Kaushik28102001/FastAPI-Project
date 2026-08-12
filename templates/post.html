@@ -16,7 +16,14 @@
                 </div>
                 <h2 class="article-title">{{ post.title }}</h2>
                 <p class="article-content">{{ post.content }}</p>
-                <div id="postActions" class="post-actions mt-3 pt-3 border-top d-none">
+                {% if post.image_file %}
+                <div class="mb-3">
+                    <img src="/media/post_pics/{{ post.image_file }}"
+                        class="img-fluid rounded"
+                        style="max-height:400px;">
+                </div>
+                {% endif %}
+                <div id="postActions" class="post-actions mt-3 pt-3 border-top">
                     <button type="button"
                             class="btn btn-outline-secondary me-1"
                             data-bs-toggle="modal"
@@ -64,6 +71,22 @@
                                       rows="5"
                                       required>{{ post.content }}</textarea>
                         </div>
+                        <div class="mb-3">
+                            <label for="editPictureInput" class="form-label">
+                                Change Post Image
+                            </label>
+
+                            <input type="file"
+                                class="form-control"
+                                id="editPictureInput"
+                                accept="image/*">
+
+                            {% if post.image_file %}
+                            <img src="/media/post_pics/{{ post.image_file }}"
+                                class="img-fluid mt-2 rounded"
+                                style="max-height:200px;">
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button"
@@ -105,109 +128,113 @@
 {% endblock content %}
 {% block scripts %}
     <script type="module">
-    import { getCurrentUser, getToken } from '/static/js/auth.js';
-    import { getErrorMessage, showModal, hideModal } from '/static/js/utils.js';
+        import { getCurrentUser, getToken } from '/static/js/auth.js';
 
-    const postId = {{ post.id }};
-    const postUserId = {{ post.user_id }};
+        const postId = {{ post.id }};
+        const postUserId = {{ post.user_id }};
 
-    // Show edit/delete buttons only if current user owns this post
-    async function checkOwnership() {
-        const user = await getCurrentUser();
-        if (user && user.id === postUserId) {
-            document.getElementById('postActions').classList.remove('d-none');
-        }
-    }
+        // Show buttons if owner
+        async function checkOwnership() {
+            const user = await getCurrentUser();
 
-    // Edit Post Form Handler
-    const editForm = document.getElementById('editPostForm');
-    editForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+            console.log("User:", user);
+            console.log("Post Owner:", postUserId);
 
-        const token = getToken();
-        if (!token) { window.location.href = '/login'; return; }
-
-        const formData = new FormData(editForm);
-        const postData = Object.fromEntries(formData.entries());
-        delete postData.post_id;
-
-        try {
-            const response = await fetch(`/api/posts/${postId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(postData),
-            });
-
-            if (response.status === 401) { window.location.href = '/login'; return; }
-            if (response.status === 403) {
-                document.getElementById('errorMessage').textContent =
-                    'You are not authorized to edit this post.';
-                hideModal('editModal');
-                showModal('errorModal');
-                return;
+            if (user && user.id === postUserId) {
+                document
+                    .getElementById("postActions")
+                    .classList.remove("d-none");
             }
+        }
 
-            if (response.ok) {
-                document.getElementById('successMessage').textContent =
-                    'Post updated successfully!';
-                hideModal('editModal');
-                showModal('successModal');
+        checkOwnership();
 
-                document.getElementById('successModal').addEventListener('hidden.bs.modal', () => {
+        // Edit Post
+        document
+            .getElementById("editPostForm")
+            .addEventListener("submit", async (event) => {
+
+                event.preventDefault();
+
+                const token = getToken();
+
+                const postData = {
+                    title: document.getElementById("editTitle").value,
+                    content: document.getElementById("editContent").value,
+                };
+
+                try {
+
+                    const response = await fetch(`/api/posts/${postId}`, {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`,
+                        },
+                        body: JSON.stringify(postData),
+                    });
+
+                    if (!response.ok) {
+                        alert("Failed to update post");
+                        return;
+                    }
+
+                    // Upload image if selected
+                    const imageFile =
+                        document.getElementById("editPictureInput").files[0];
+
+                    if (imageFile) {
+
+                        const imageFormData = new FormData();
+
+                        imageFormData.append("file", imageFile);
+
+                        const imageResponse =
+                            await fetch(`/api/posts/${postId}/picture`, {
+                                method: "PATCH",
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                },
+                                body: imageFormData,
+                            });
+
+                        if (!imageResponse.ok) {
+                            alert("Image upload failed");
+                            return;
+                        }
+                    }
+
+                    alert("Post updated successfully");
+
                     window.location.reload();
-                }, { once: true });
-            } else {
-                const error = await response.json();
-                document.getElementById('errorMessage').textContent = getErrorMessage(error);
-                hideModal('editModal');
-                showModal('errorModal');
-            }
-        } catch (error) {
-            document.getElementById('errorMessage').textContent =
-                'Network error. Please check your connection and try again.';
-            showModal('errorModal');
-        }
-    });
 
-    // Delete Post Handler
-    const deleteButton = document.getElementById('confirmDelete');
-    deleteButton.addEventListener('click', async () => {
-        const token = getToken();
-        if (!token) { window.location.href = '/login'; return; }
+                } catch (error) {
 
-        try {
-            const response = await fetch(`/api/posts/${postId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` },
+                    console.error(error);
+
+                    alert("Error updating post");
+                }
             });
 
-            if (response.status === 401) { window.location.href = '/login'; return; }
-            if (response.status === 403) {
-                document.getElementById('errorMessage').textContent =
-                    'You are not authorized to delete this post.';
-                hideModal('deleteModal');
-                showModal('errorModal');
-                return;
-            }
+        // Delete Post
+        document
+            .getElementById("confirmDelete")
+            .addEventListener("click", async () => {
 
-            if (response.status === 204) {
-                window.location.href = '/';
-            } else {
-                const error = await response.json();
-                document.getElementById('errorMessage').textContent = getErrorMessage(error);
-                hideModal('deleteModal');
-                showModal('errorModal');
-            }
-        } catch (error) {
-            document.getElementById('errorMessage').textContent =
-                'Network error. Please check your connection and try again.';
-            showModal('errorModal');
-        }
-    });
+                const token = getToken();
 
-    checkOwnership();
-    </script>
+                const response = await fetch(`/api/posts/${postId}`, {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (response.status === 204) {
+                    window.location.href = "/";
+                } else {
+                    alert("Failed to delete post");
+                }
+            });
+</script>
 {% endblock scripts %}

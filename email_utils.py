@@ -14,7 +14,9 @@ async def send_email(
     plain_text: str,
     html_content: str | None = None,
 ) -> None:
+
     message = EmailMessage()
+
     message["From"] = settings.mail_from
     message["To"] = to_email
     message["Subject"] = subject
@@ -22,16 +24,61 @@ async def send_email(
     message.set_content(plain_text)
 
     if html_content:
-        message.add_alternative(html_content, subtype="html")
+        message.add_alternative(
+            html_content,
+            subtype="html",
+        )
 
     await aiosmtplib.send(
         message,
         hostname=settings.mail_server,
-        port=settings.mail_port,
-        username=settings.mail_username or None,
-        password=settings.mail_password.get_secret_value() or None,
-        start_tls=settings.mail_use_tls,
+        port=587,
+        username=settings.mail_username,
+        password=settings.mail_password,
+        start_tls=True,
     )
+async def send_otp_email(
+            to_email: str,
+            username: str,
+            otp: str,
+        ) -> None:
+
+            subject = "Email Verification OTP - FastAPI Blog"
+
+            plain_text = f"""
+        Hi {username},
+
+        Your verification OTP is:
+
+        {otp}
+
+        This OTP will expire in 10 minutes.
+
+        If you did not create an account, please ignore this email.
+
+        FastAPI Blog Team
+        """
+
+            html_content = f"""
+            <h2>Email Verification</h2>
+
+            <p>Hi {username},</p>
+
+            <p>Your verification OTP is:</p>
+
+            <h1>{otp}</h1>
+
+            <p>This OTP will expire in 10 minutes.</p>
+
+            <p>FastAPI Blog Team</p>
+            """
+
+            await send_email(
+                to_email=to_email,
+                subject=subject,
+                plain_text=plain_text,
+                html_content=html_content,
+            )
 
 
 async def send_password_reset_email(to_email: str, username: str, token: str) -> None:
