@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from typing import Annotated
 import random
-from email_utils import send_otp_email
+from email_utils import send_email
 
 from fastapi import (
     APIRouter,
@@ -33,7 +33,7 @@ from auth import (
 from config import settings
 from otp_store import otp_store
 from database import get_db
-from email_utils import send_password_reset_email
+
 from image_utils import delete_profile_image, process_profile_image
 from schemas import (
     ChangePasswordRequest,
@@ -126,7 +126,7 @@ async def send_otp(data: SendOtpRequest):
         print("OTP:", otp)
         print("=================================")
 
-        await send_otp_email(
+        await send_email(
             data.email,
             data.username,
             otp,
