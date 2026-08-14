@@ -28,14 +28,19 @@ class Settings(BaseSettings):
 
     reset_token_expire_minutes: int = 60
 
-    mail_server: str = "sandbox.smtp.mailtrap.io"
+    mail_server: str = "smtp.gmail.com"
     mail_port: int = 587
-    mail_username: str = "1c80f69dac45c4"
-    mail_password: str = "fa3972d4ca57ac"
-    mail_from: str = "noreply@example.com"
+    mail_username: str = "kaushiksharma759@gmail.com"
+    mail_password: str = "ymnh snji wjwy udza"
+    mail_from: str = "kaushiksharma759@gmail.com"
     mail_use_tls: bool = True
 
     frontend_url: str = "http://localhost:8000"
 
 
 settings = Settings()  # type: ignore[call-arg] # Loaded from .env file
+print(settings.mail_server)
+print(settings.mail_port)
+print(settings.mail_username)
+print(settings.mail_from)
+print(settings.mail_use_tls)
