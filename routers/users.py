@@ -1,11 +1,11 @@
 from datetime import UTC, datetime, timedelta
 from typing import Annotated
 import random
-<<<<<<< HEAD
+
 from email_utils import send_email,send_password_reset_email,send_otp_email
-=======
+
 from email_utils import send_email
->>>>>>> 03872c2da4c13952aff3ea0453b1ce61dd25795a
+
 
 from fastapi import (
     APIRouter,

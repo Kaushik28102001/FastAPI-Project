@@ -30,15 +30,15 @@ class Settings(BaseSettings):
 
     mail_server: str = "smtp.gmail.com"
     mail_port: int = 587
-<<<<<<< HEAD
+
     mail_username: str = "1c80f69dac45c4"
     mail_password: str = "fa3972d4ca57ac"
     mail_from: str = "noreply@fastapiblog.com"
-=======
+
     mail_username: str = "kaushiksharma759@gmail.com"
     mail_password: str = "ymnh snji wjwy udza"
     mail_from: str = "kaushiksharma759@gmail.com"
->>>>>>> 03872c2da4c13952aff3ea0453b1ce61dd25795a
+
     mail_use_tls: bool = True
 
     frontend_url: str = "http://localhost:8000"
@@ -49,8 +49,8 @@ print(settings.mail_server)
 print(settings.mail_port)
 print(settings.mail_username)
 print(settings.mail_from)
-<<<<<<< HEAD
+
 print(settings.mail_use_tls)
-=======
+
 print(settings.mail_use_tls)
->>>>>>> 03872c2da4c13952aff3ea0453b1ce61dd25795a
+
