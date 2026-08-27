@@ -15,16 +15,33 @@ from sqlalchemy.orm import selectinload
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 import models
+
+from database import Base, engine, get_db
 from config import settings
-from database import engine, get_db
 from routers import posts, users
 
 
+from sqlalchemy import text
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    print("Creating tables...")
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+        result = await conn.execute(
+            text(
+                "SELECT tablename FROM pg_tables "
+                "WHERE schemaname='public'"
+            )
+        )
+
+        print("TABLES:", result.fetchall())
+
+    print("Tables created!")
+
     yield
-    # Shutdown
-    await engine.dispose()
 
 
 app = FastAPI(lifespan=lifespan)
