@@ -23,8 +23,14 @@ import models
 
 from database import Base, engine, get_db
 from config import settings
+<<<<<<< HEAD
 from routers import posts, users, announcements, calendar,admin
 
+=======
+from routers import posts, users
+>>>>>>> 03872c2da4c13952aff3ea0453b1ce61dd25795a
+
+from sqlalchemy import text
 
 from sqlalchemy import text
 
@@ -327,6 +333,7 @@ async def validation_exception_handler(
         },
         status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
     )
+<<<<<<< HEAD
 @app.get(
     "/posts/date/{selected_date}",
     response_class=HTMLResponse,
@@ -358,3 +365,5 @@ async def posts_by_date(
             "selected_date": selected_date,
         },
     )
+=======
+>>>>>>> 03872c2da4c13952aff3ea0453b1ce61dd25795a

@@ -344,8 +344,181 @@
             // Initialize
             setTheme(localStorage.getItem('theme') || 'auto');
         </script>
+<<<<<<< HEAD
        
                
+=======
+       <script>
+                document.addEventListener("DOMContentLoaded", function () {
+
+                    const calendarLink = document.getElementById("calendarLink");
+                    const calendarSection = document.getElementById("calendarSection");
+                    const calendarDate = document.getElementById("calendarDate");
+                    const calendarPosts = document.getElementById("calendarPosts");
+                    const closeCalendar = document.getElementById("closeCalendar");
+
+                    // Open Calendar
+                    if (calendarLink) {
+                        calendarLink.addEventListener("click", function (event) {
+                            event.preventDefault();
+
+                            calendarSection.classList.remove("d-none");
+
+                            calendarSection.scrollIntoView({
+                                behavior: "smooth",
+                                block: "start"
+                            });
+                        });
+                    }
+
+                    // When user selects a date
+                    if (calendarDate) {
+                        calendarDate.addEventListener("change", async function () {
+
+                            const selectedDate = calendarDate.value;
+
+                            if (!selectedDate) {
+                                return;
+                            }
+
+                            calendarPosts.innerHTML = `
+                                <p>Loading posts...</p>
+                            `;
+
+                            try {
+                                const response = await fetch(
+                                    `/api/posts/date/${selectedDate}`
+                                );
+
+                                if (!response.ok) {
+                                    if (response.status === 404) {
+                                        calendarPosts.innerHTML = `
+                                            <div class="alert alert-info">
+                                                No posts found for this date.
+                                            </div>
+                                        `;
+                                        return;
+                                    }
+
+                                    throw new Error("Failed to load posts");
+                                }
+
+                                const posts = await response.json();
+
+                                if (!posts || posts.length === 0) {
+                                    calendarPosts.innerHTML = `
+                                        <div class="alert alert-info">
+                                            No posts found for ${selectedDate}.
+                                        </div>
+                                    `;
+                                    return;
+                                }
+
+                                calendarPosts.innerHTML = "";
+
+                                posts.forEach(function (post) {
+
+                                    const article = document.createElement("article");
+
+                                    article.className =
+                                        "content-section py-3 px-4 mb-3";
+
+                                    article.innerHTML = `
+                                        <div class="d-flex flex-column flex-sm-row align-items-center align-items-sm-start gap-3">
+
+                                            <img
+                                                class="rounded-circle flex-shrink-0"
+                                                src="${post.author.image_path || '/static/images/default.jpg'}"
+                                                alt="${post.author.username}"
+                                                width="50"
+                                                height="50"
+                                                style="object-fit: cover; max-width: 100%;"
+                                                onerror="this.src='/static/images/default.jpg'"
+                                            >
+
+                                            <div class="flex-grow-1 overflow-hidden w-100">
+
+                                                <div class="article-metadata mb-2">
+
+                                                    <strong>
+                                                        ${post.author.username}
+                                                    </strong>
+
+                                                    <small class="text-body-secondary ms-2">
+                                                        ${new Date(
+                                                            post.date_posted
+                                                        ).toLocaleDateString()}
+                                                    </small>
+
+                                                </div>
+
+                                                <h4>
+                                                    <a href="/posts/${post.id}">
+                                                        ${post.title}
+                                                    </a>
+                                                </h4>
+
+                                                ${
+                                                    post.image_file
+                                                        ? `
+                                                            <img
+                                                                src="/media/post_pics/${post.image_file}"
+                                                                class="img-fluid rounded mb-3"
+                                                                alt="${post.title}"
+                                                            >
+                                                        `
+                                                        : ""
+                                                }
+
+                                                <p class="article-content">
+                                                    ${post.content}
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+                                    `;
+
+                                    calendarPosts.appendChild(article);
+                                });
+
+                            } catch (error) {
+
+                                console.error(
+                                    "Error loading calendar posts:",
+                                    error
+                                );
+
+                                calendarPosts.innerHTML = `
+                                    <div class="alert alert-danger">
+                                        Failed to load posts for this date.
+                                    </div>
+                                `;
+                            }
+                        });
+                    }
+
+                    // Close Calendar
+                    if (closeCalendar) {
+                        closeCalendar.addEventListener("click", function () {
+                            calendarSection.classList.add("d-none");
+                        });
+                    }
+
+                });
+        </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+                const announcementsLink =
+                    document.getElementById("announcementsLink");
+
+                const announcementsSection =
+                    document.getElementById("announcementsSection");
+
+                const closeAnnouncements =
+                    document.getElementById("closeAnnouncements");
+>>>>>>> 03872c2da4c13952aff3ea0453b1ce61dd25795a
 
                     
         

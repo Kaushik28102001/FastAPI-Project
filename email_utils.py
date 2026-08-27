@@ -115,6 +115,7 @@ async def send_otp_email(
     plain_text = f"""Hi {username},
 
 Welcome to FastAPI Blog!
+<<<<<<< HEAD
 
 Hope you are doing well.
 
@@ -224,6 +225,116 @@ async def send_password_reset_email(
 
     subject = "Reset Your Password - FastAPI Blog"
 
+=======
+
+Hope you are doing well.
+
+Thank you for registering with FastAPI Blog.
+
+To complete your registration and verify your email address, please use the following One-Time Password (OTP):
+
+OTP: {otp}
+
+This OTP will expire in 5 minutes.
+
+Please do not share this OTP with anyone for security reasons.
+
+If you did not create an account on FastAPI Blog, please ignore this email.
+
+Best regards,
+FastAPI Blog Team
+"""
+
+    # -----------------------------------------------------
+    # HTML EMAIL
+    # -----------------------------------------------------
+
+    html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verification</title>
+</head>
+
+<body>
+
+    <h2>Welcome to FastAPI Blog!</h2>
+
+    <p>Hi <strong>{username}</strong>,</p>
+
+    <p>Hope you are doing well.</p>
+
+    <p>
+        Thank you for registering with
+        <strong>FastAPI Blog</strong>.
+    </p>
+
+    <p>
+        To complete your registration and verify your email address,
+        please use the following One-Time Password (OTP):
+    </p>
+
+    <h1>{otp}</h1>
+
+    <p>
+        This OTP will expire in <strong>5 minutes</strong>.
+    </p>
+
+    <p>
+        Please do not share this OTP with anyone for security reasons.
+    </p>
+
+    <p>
+        If you did not create an account on FastAPI Blog,
+        please ignore this email.
+    </p>
+
+    <br>
+
+    <p>
+        Best regards,<br>
+        <strong>FastAPI Blog Team</strong>
+    </p>
+
+</body>
+</html>
+"""
+
+    # -----------------------------------------------------
+    # SEND OTP EMAIL
+    # -----------------------------------------------------
+
+    await send_email(
+        to_email=to_email,
+        subject=subject,
+        plain_text=plain_text,
+        html_content=html_content,
+    )
+
+
+# =========================================================
+# SEND PASSWORD RESET EMAIL
+# =========================================================
+
+async def send_password_reset_email(
+    to_email: str,
+    username: str,
+    token: str,
+) -> None:
+
+    # -----------------------------------------------------
+    # CREATE PASSWORD RESET URL
+    # -----------------------------------------------------
+
+    reset_url = (
+        f"{settings.frontend_url}"
+        f"/reset-password?token={token}"
+    )
+
+    subject = "Reset Your Password - FastAPI Blog"
+
+>>>>>>> 03872c2da4c13952aff3ea0453b1ce61dd25795a
     # -----------------------------------------------------
     # PLAIN TEXT EMAIL
     # -----------------------------------------------------
@@ -244,6 +355,7 @@ If you did not request a password reset, you can safely ignore this email. Your 
 
 Best regards,
 FastAPI Blog Team
+<<<<<<< HEAD
 """
 
     # -----------------------------------------------------
@@ -304,6 +416,68 @@ FastAPI Blog Team
 """
 
     # -----------------------------------------------------
+=======
+"""
+
+    # -----------------------------------------------------
+    # HTML EMAIL
+    # -----------------------------------------------------
+
+    html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reset Your Password</title>
+</head>
+
+<body>
+
+    <h2>Password Reset Request</h2>
+
+    <p>Hi <strong>{username}</strong>,</p>
+
+    <p>Hope you are doing well.</p>
+
+    <p>
+        We received a request to reset the password for your
+        <strong>FastAPI Blog</strong> account.
+    </p>
+
+    <p>
+        Click the link below to reset your password:
+    </p>
+
+    <p>
+        <a href="{reset_url}">
+            Reset My Password
+        </a>
+    </p>
+
+    <p>
+        This password reset link will expire in
+        <strong>1 hour</strong>.
+    </p>
+
+    <p>
+        If you did not request a password reset,
+        you can safely ignore this email.
+        Your account will remain secure.
+    </p>
+
+    <br>
+
+    <p>
+        Best regards,<br>
+        <strong>FastAPI Blog Team</strong>
+    </p>
+
+</body>
+</html>
+"""
+
+    # -----------------------------------------------------
+>>>>>>> 03872c2da4c13952aff3ea0453b1ce61dd25795a
     # SEND PASSWORD RESET EMAIL
     # -----------------------------------------------------
 
