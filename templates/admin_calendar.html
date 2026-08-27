@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="content-section py-4">
+
+    <h2>Calendar Manager</h2>
+
+    <input
+        type="date"
+        id="selectedDate"
+        class="form-control">
+
+    <button
+        class="btn btn-primary mt-3"
+        onclick="showPosts()">
+
+        Show Posts
+
+    </button>
+
+    <div
+        id="results"
+        class="mt-4">
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+async function showPosts() {
+
+    const selectedDate =
+        document.getElementById("selectedDate").value;
+
+    const response =
+        await fetch(
+            `/api/posts/date/${selectedDate}`
+        );
+
+    const posts =
+        await response.json();
+
+    let html = "";
+
+    posts.forEach(post => {
+
+        html += `
+            <div class="card mb-2">
+
+                <div class="card-body">
+
+                    <h5>${post.title}</h5>
+
+                    <p>${post.short_content}</p>
+
+                </div>
+
+            </div>
+        `;
+
+    });
+
+    document
+        .getElementById("results")
+        .innerHTML = html;
+}
+
+</script>
+{% endblock %}

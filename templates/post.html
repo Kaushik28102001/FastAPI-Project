@@ -1,240 +1,1101 @@
-{% extends "layout.html" %}
-{% block content %}
-    <article class="content-section py-3 px-4 mb-4">
-        <div class="d-flex align-items-start gap-4">
-            <img class="rounded-circle article-img flex-shrink-0"
-                 src="{{ post.author.image_path }}"
-                 alt="{{ post.author.username }}'s profile picture"
-                 width="64"
-                 height="64"
-                 loading="lazy">
-            <div class="flex-grow-1">
-                <div class="article-metadata mb-2">
-                    <a class="me-2"
-                       href="{{ url_for("user_posts", user_id=post.author.id) }}">{{ post.author.username }}</a>
-                    <small class="text-body-secondary">{{ post.date_posted.strftime("%B %d, %Y") }}</small>
-                </div>
-                <h2 class="article-title">{{ post.title }}</h2>
-                <p class="article-content">{{ post.content }}</p>
-                {% if post.image_file %}
-                <div class="mb-3">
-                    <img src="/media/post_pics/{{ post.image_file }}"
-                        class="img-fluid rounded"
-                        style="max-height:400px;">
-                </div>
-                {% endif %}
-                <div id="postActions" class="post-actions mt-3 pt-3 border-top">
-                    <button type="button"
-                            class="btn btn-outline-secondary me-1"
-                            data-bs-toggle="modal"
-                            data-bs-target="#editModal">Edit Post</button>
-                    <button type="button"
+    {% extends "layout.html" %}
+    {% block content %}
+        <article class="content-section py-3 px-4 mb-4">
+            <div class="d-flex align-items-start gap-4">
+                <img class="rounded-circle article-img flex-shrink-0"
+                    src="{{ post.author.image_path }}"
+                    alt="{{ post.author.username }}'s profile picture"
+                    width="64"
+                    height="64"
+                    loading="lazy">
+                <div class="flex-grow-1">
+                    <div class="article-metadata mb-2">
+                        <a class="me-2"
+                        href="{{ url_for("user_posts", user_id=post.author.id) }}">{{ post.author.username }}</a>
+                        <small class="text-body-secondary">{{ post.date_posted.strftime("%B %d, %Y") }}</small>
+                    </div>
+                    <h2 class="article-title">{{ post.title }}</h2>
+                    <p class="article-content">{{ post.content }}</p>
+                    {% if post.image_file %}
+                    <div class="mb-3">
+                        <img src="/media/post_pics/{{ post.image_file }}"
+                            class="img-fluid rounded w-100"
+                            style="max-height:400px; object-fit:contain;"
+                            alt="{{ post.title }}">
+                    </div>
+                    {% endif %}
+
+
+                    <!-- POST INTERACTIONS -->
+                                    <!-- POST INTERACTIONS -->
+                    <div id="postActions" class="post-interactions mt-4 pt-3 border-top">
+
+                        <!-- LIKE -->
+                        <button
+                            type="button"
                             class="btn btn-outline-danger"
-                            data-bs-toggle="modal"
-                            data-bs-target="#deleteModal">Delete Post</button>
+                            id="likeButton">
+
+                            <span id="likeText">❤️ Like</span>
+                            <span id="likeCount">0</span>
+
+                        </button>
+
+                        <!-- REPOST -->
+                        <button
+                            type="button"
+                            id="repostButton"
+                            class="btn btn-outline-success">
+
+                            <span id="repostText">🔄 Repost</span>
+                            <span id="repostCount">0</span>
+
+                        </button>
+
+                        <!-- COMMENTS -->
+                        <button
+                            type="button"
+                            id="commentBtn"
+                            class="btn btn-outline-primary">
+
+                            💬 Comments
+                            <span id="commentCount">0</span>
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- COMMENTS SECTION -->
+                    <div id="commentsSection" class="mt-4 pt-3 border-top">
+
+                        <h4 class="mb-3">💬 Comments</h4>
+
+                        <!-- COMMENT FORM -->
+                        <form id="commentForm">
+
+                            <div class="mb-3">
+                                <textarea
+                                    id="commentContent"
+                                    class="form-control"
+                                    rows="3"
+                                    placeholder="Write a comment..."
+                                    required></textarea>
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary">
+                                Post Comment
+                            </button>
+
+                        </form>
+
+
+                        <!-- COMMENTS LIST -->
+                        <div id="commentsContainer" class="mt-4">
+                            <p class="text-body-secondary">
+                                Loading comments...
+                            </p>
+                        </div>
+
+                    </div>
+
+
+
+
+                        <div
+                            id="ownerActions"
+                            class="mt-4 d-none">
+
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary me-1"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editModal">
+
+                                Edit Post
+
+                            </button>
+
+                            <button
+                                type="button"
+                                class="btn btn-outline-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">
+
+                                Delete Post
+
+                            </button>
+
+                        </div>
+                    </div>
+                
+            </div>
+        </article>
+        <!-- Edit Post Modal -->
+        <div class="modal fade"
+            id="editModal"
+            tabindex="-1"
+            aria-labelledby="editModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Edit Post</h5>
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+                    <form id="editPostForm">
+                        <div class="modal-body">
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <div class="mb-3">
+                                <label for="editTitle" class="form-label">Title</label>
+                                <input type="text"
+                                    class="form-control"
+                                    id="editTitle"
+                                    name="title"
+                                    value="{{ post.title }}"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editContent" class="form-label">Content</label>
+                                <textarea class="form-control"
+                                        id="editContent"
+                                        name="content"
+                                        rows="5"
+                                        required>{{ post.content }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editPictureInput" class="form-label">
+                                    Change Post Image
+                                </label>
+
+                                <input type="file"
+                                    class="form-control"
+                                    id="editPictureInput"
+                                    accept="image/*">
+
+                                {% if post.image_file %}
+                                <img src="/media/post_pics/{{ post.image_file }}"
+                                    class="img-fluid mt-2 rounded"
+                                    style="max-height:200px;">
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </article>
-    <!-- Edit Post Modal -->
-    <div class="modal fade"
-         id="editModal"
-         tabindex="-1"
-         aria-labelledby="editModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit Post</h5>
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                </div>
-                <form id="editPostForm">
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade"
+            id="deleteModal"
+            tabindex="-1"
+            aria-labelledby="deleteModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="deleteModalLabel">Delete Post?</h5>
+                        <button type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
                     <div class="modal-body">
-                        <input type="hidden" name="post_id" value="{{ post.id }}">
-                        <div class="mb-3">
-                            <label for="editTitle" class="form-label">Title</label>
-                            <input type="text"
-                                   class="form-control"
-                                   id="editTitle"
-                                   name="title"
-                                   value="{{ post.title }}"
-                                   required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editContent" class="form-label">Content</label>
-                            <textarea class="form-control"
-                                      id="editContent"
-                                      name="content"
-                                      rows="5"
-                                      required>{{ post.content }}</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editPictureInput" class="form-label">
-                                Change Post Image
-                            </label>
-
-                            <input type="file"
-                                class="form-control"
-                                id="editPictureInput"
-                                accept="image/*">
-
-                            {% if post.image_file %}
-                            <img src="/media/post_pics/{{ post.image_file }}"
-                                class="img-fluid mt-2 rounded"
-                                style="max-height:200px;">
-                            {% endif %}
-                        </div>
+                        <p class="fs-5">Are you sure you want to delete this post? This action cannot be undone.</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button"
                                 class="btn btn-outline-secondary"
                                 data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade"
-         id="deleteModal"
-         tabindex="-1"
-         aria-labelledby="deleteModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title" id="deleteModalLabel">Delete Post?</h5>
-                    <button type="button"
-                            class="btn-close btn-close-white"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="fs-5">Are you sure you want to delete this post? This action cannot be undone.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button"
-                            class="btn btn-outline-secondary"
-                            data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
                 </div>
             </div>
         </div>
-    </div>
-{% endblock content %}
-{% block scripts %}
-    <script type="module">
+    {% endblock content %}
+    {% block scripts %}
+        <script type="module">
+
         import { getCurrentUser, getToken } from '/static/js/auth.js';
+
+        // =====================================================
+        // POST DATA
+        // =====================================================
 
         const postId = {{ post.id }};
         const postUserId = {{ post.user_id }};
 
-        // Show buttons if owner
-        async function checkOwnership() {
-            const user = await getCurrentUser();
 
-            console.log("User:", user);
-            console.log("Post Owner:", postUserId);
+        // =====================================================
+        // LIKE ELEMENTS
+        // =====================================================
 
-            if (user && user.id === postUserId) {
-                document
-                    .getElementById("postActions")
-                    .classList.remove("d-none");
-            }
+        const likeButton = document.getElementById("likeButton");
+        const likeCount = document.getElementById("likeCount");
+        const likeText = document.getElementById("likeText");
+
+
+        // =====================================================
+        // REPOST ELEMENTS
+        // =====================================================
+
+        const repostButton = document.getElementById("repostButton");
+        const repostCount = document.getElementById("repostCount");
+        const repostText = document.getElementById("repostText");
+
+
+        // =====================================================
+        // COMMENT ELEMENTS
+        // =====================================================
+
+        const commentBtn = document.getElementById("commentBtn");
+        const commentCount = document.getElementById("commentCount");
+
+        const commentForm = document.getElementById("commentForm");
+        const commentContent = document.getElementById("commentContent");
+        const commentsContainer = document.getElementById("commentsContainer");
+        const commentsSection = document.getElementById("commentsSection");
+
+
+        // =====================================================
+        // DEBUG
+        // =====================================================
+
+        console.log({
+            postId,
+            likeButton,
+            repostButton,
+            commentBtn,
+            commentForm,
+            commentContent,
+            commentsContainer,
+            commentsSection
+        });
+
+
+        // =====================================================
+        // COMMENTS BUTTON
+        // Scroll to comments section
+        // =====================================================
+
+        if (commentBtn && commentsSection && commentContent) {
+
+            commentBtn.addEventListener("click", () => {
+
+                commentsSection.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+                commentContent.focus();
+
+            });
+
         }
 
-        checkOwnership();
 
-        // Edit Post
-        document
-            .getElementById("editPostForm")
-            .addEventListener("submit", async (event) => {
+        // =====================================================
+        // POST COMMENT
+        // =====================================================
+
+        if (commentForm) {
+
+            commentForm.addEventListener("submit", async (event) => {
 
                 event.preventDefault();
 
                 const token = getToken();
 
-                const postData = {
-                    title: document.getElementById("editTitle").value,
-                    content: document.getElementById("editContent").value,
-                };
+                if (!token) {
+                    alert("Please login first");
+                    return;
+                }
+
+
+                const comment = commentContent.value.trim();
+
+                if (!comment) {
+                    alert("Please write a comment");
+                    return;
+                }
+
 
                 try {
 
-                    const response = await fetch(`/api/posts/${postId}`, {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                        },
-                        body: JSON.stringify(postData),
-                    });
+                    console.log("Sending comment:", comment);
+
+
+                    const response = await fetch(
+                        `/api/posts/${postId}/comments`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Authorization": `Bearer ${token}`,
+                                "Content-Type": "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                comment: comment
+                            })
+                        }
+                    );
+
+
+                    const data = await response.json();
+
+                    console.log("Comment response:", data);
+                    console.log("Comment status:", response.status);
+
 
                     if (!response.ok) {
-                        alert("Failed to update post");
+
+                        console.error("Comment API error:", data);
+
+                        alert(
+                            typeof data.detail === "string"
+                                ? data.detail
+                                : "Failed to post comment"
+                        );
+
                         return;
                     }
 
-                    // Upload image if selected
-                    const imageFile =
-                        document.getElementById("editPictureInput").files[0];
 
-                    if (imageFile) {
+                    // Remove loading message
+                    const loadingText =
+                        commentsContainer.querySelector("p");
 
-                        const imageFormData = new FormData();
-
-                        imageFormData.append("file", imageFile);
-
-                        const imageResponse =
-                            await fetch(`/api/posts/${postId}/picture`, {
-                                method: "PATCH",
-                                headers: {
-                                    Authorization: `Bearer ${token}`,
-                                },
-                                body: imageFormData,
-                            });
-
-                        if (!imageResponse.ok) {
-                            alert("Image upload failed");
-                            return;
-                        }
+                    if (loadingText) {
+                        loadingText.remove();
                     }
 
-                    alert("Post updated successfully");
 
-                    window.location.reload();
+                    // Create comment element
+                    const commentElement =
+                        document.createElement("div");
+
+                    commentElement.className =
+                        "card mt-2";
+
+
+                    commentElement.innerHTML = `
+                    <div class="card-body">
+                        <strong>
+                            ${data.user?.username || "User"}
+                        </strong>
+
+                        <p class="mb-0 mt-2">
+                            ${data.comment}
+                        </p>
+                    </div>
+                `;
+
+
+                    // Add new comment below the post
+                    commentsContainer.prepend(commentElement);
+
+
+                    // Clear textarea
+                    commentContent.value = "";
+
+
+                    // Update comment count
+                    const currentCount =
+                        Number(commentCount.textContent) || 0;
+
+                    commentCount.textContent =
+                        currentCount + 1;
+
 
                 } catch (error) {
 
-                    console.error(error);
+                    console.error("Comment error:", error);
 
-                    alert("Error updating post");
+                    alert("Error posting comment");
+
                 }
+
             });
 
-        // Delete Post
-        document
-            .getElementById("confirmDelete")
-            .addEventListener("click", async () => {
+        }
+
+
+        // =====================================================
+        // REPOST
+        // =====================================================
+
+        if (repostButton) {
+
+            repostButton.addEventListener("click", async () => {
 
                 const token = getToken();
 
-                const response = await fetch(`/api/posts/${postId}`, {
-                    method: "DELETE",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                if (!token) {
+                    alert("Please login first");
+                    return;
+                }
+
+
+                try {
+
+                    const response = await fetch(
+                        `/api/posts/${postId}/repost`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Authorization": `Bearer ${token}`
+                            }
+                        }
+                    );
+
+
+                    const data = await response.json();
+
+                    console.log("Repost response:", data);
+
+
+                    if (!response.ok) {
+
+                        alert(data.detail || "Failed to repost");
+
+                        return;
+
+                    }
+
+
+                    // Update repost count
+                    repostCount.textContent = data.reposts;
+
+
+                    if (data.action === "reposted") {
+
+                        repostText.textContent =
+                            "🔄 Reposted";
+
+                        // Change button color
+                        repostButton.classList.remove(
+                            "btn-outline-success"
+                        );
+
+                        repostButton.classList.add(
+                            "btn-success"
+                        );
+
+                    } else {
+
+                        repostText.textContent =
+                            "🔄 Repost";
+
+                        // Return original color
+                        repostButton.classList.remove(
+                            "btn-success"
+                        );
+
+                        repostButton.classList.add(
+                            "btn-outline-success"
+                        );
+
+                    }
+
+
+                } catch (error) {
+
+                    console.error("Repost error:", error);
+
+                    alert("Error updating repost");
+
+                }
+
+            });
+
+        }
+
+
+        // =====================================================
+        // LIKE
+        // =====================================================
+
+        if (likeButton) {
+
+            likeButton.addEventListener("click", async () => {
+
+                const token = getToken();
+
+                if (!token) {
+                    alert("Please login first");
+                    return;
+                }
+
+
+                try {
+
+                    const response = await fetch(
+                        `/api/posts/${postId}/like`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Authorization": `Bearer ${token}`
+                            }
+                        }
+                    );
+
+
+                    const data = await response.json();
+
+                    console.log("Like response:", data);
+
+
+                    if (!response.ok) {
+
+                        alert(
+                            data.detail ||
+                            "Failed to update like"
+                        );
+
+                        return;
+
+                    }
+
+
+                    // Update like count
+                    likeCount.textContent = data.likes;
+
+
+                    if (data.action === "liked") {
+
+                        likeText.textContent =
+                            "❤️ Liked";
+
+
+                        // RED FILLED BUTTON
+                        likeButton.classList.remove(
+                            "btn-outline-danger"
+                        );
+
+                        likeButton.classList.add(
+                            "btn-danger"
+                        );
+
+
+                    } else {
+
+                        likeText.textContent =
+                            "♡ Like";
+
+
+                        // ORIGINAL BUTTON
+                        likeButton.classList.remove(
+                            "btn-danger"
+                        );
+
+                        likeButton.classList.add(
+                            "btn-outline-danger"
+                        );
+
+                    }
+
+
+                } catch (error) {
+
+                    console.error("Like error:", error);
+
+                    alert("Error updating like");
+
+                }
+
+            });
+
+        }
+
+
+        // =====================================================
+        // SHOW EDIT/DELETE ONLY TO POST OWNER
+        // =====================================================
+
+        async function checkOwnership() {
+
+            try {
+
+                const user = await getCurrentUser();
+
+                const ownerActions =
+                    document.getElementById("ownerActions");
+
+
+                console.log(
+                    "Logged in user:",
+                    user
+                );
+
+                console.log(
+                    "Post user ID:",
+                    postUserId
+                );
+
+
+                if (
+                    user &&
+                    ownerActions &&
+                    Number(user.id) === Number(postUserId)
+                ) {
+
+                    ownerActions.classList.remove(
+                        "d-none"
+                    );
+
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    "Ownership check failed:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        checkOwnership();
+
+        // =====================================================
+            // LOAD EXISTING COMMENTS
+            // =====================================================
+
+           async function loadComments() {
+
+            try {
+
+                const response = await fetch(`/api/posts/${postId}/comments`);
+
+                if (!response.ok) {
+                    throw new Error("Failed to load comments");
+                }
+
+                const comments = await response.json();
+
+                commentsContainer.innerHTML = "";
+
+                if (comments.length === 0) {
+                    commentsContainer.innerHTML =
+                        `<p class="text-body-secondary">No comments yet. Be the first!</p>`;
+                } else {
+
+                    const currentUser = await getCurrentUser();
+
+                    comments.forEach((c) => {
+
+                        const canManage =
+                            currentUser &&
+                            (Number(currentUser.id) === Number(c.user_id) ||
+                            currentUser.is_admin);
+
+                        const commentElement = document.createElement("div");
+                        commentElement.className = "card mt-2";
+                        commentElement.dataset.commentId = c.id;
+
+                        commentElement.innerHTML = `
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <strong>${c.user?.username || "User"}</strong>
+                                    ${canManage ? `
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-secondary edit-comment-btn">Edit</button>
+                                            <button type="button" class="btn btn-outline-danger delete-comment-btn">Delete</button>
+                                        </div>
+                                    ` : ""}
+                                </div>
+                                <p class="mb-0 mt-2 comment-text">${c.comment}</p>
+                            </div>
+                        `;
+
+                        commentsContainer.appendChild(commentElement);
+                    });
+
+                    attachCommentActionHandlers();
+                }
+
+                commentCount.textContent = comments.length;
+
+            } catch (error) {
+                console.error("Load comments error:", error);
+                commentsContainer.innerHTML =
+                    `<p class="text-danger">Failed to load comments</p>`;
+            }
+
+        }
+
+          loadComments(); 
+
+        function attachCommentActionHandlers() {
+
+            // DELETE
+            document.querySelectorAll(".delete-comment-btn").forEach((btn) => {
+                btn.addEventListener("click", async (event) => {
+
+                    const card = event.target.closest("[data-comment-id]");
+                    const commentId = card.dataset.commentId;
+
+                    if (!confirm("Delete this comment?")) {
+                        return;
+                    }
+
+                    const token = getToken();
+
+                    try {
+                        const response = await fetch(
+                            `/api/posts/${postId}/comments/${commentId}`,
+                            {
+                                method: "DELETE",
+                                headers: {
+                                    "Authorization": `Bearer ${token}`
+                                }
+                            }
+                        );
+
+                        if (response.status === 204) {
+                            card.remove();
+
+                            const currentCount =
+                                Number(commentCount.textContent) || 0;
+
+                            commentCount.textContent =
+                                Math.max(0, currentCount - 1);
+                        } else {
+                            const data = await response.json();
+                            alert(data.detail || "Failed to delete comment");
+                        }
+
+                    } catch (error) {
+                        console.error("Delete comment error:", error);
+                        alert("Error deleting comment");
+                    }
+
+                });
+            });
+
+            // EDIT
+            document.querySelectorAll(".edit-comment-btn").forEach((btn) => {
+                btn.addEventListener("click", async (event) => {
+
+                    const card = event.target.closest("[data-comment-id]");
+                    const commentId = card.dataset.commentId;
+                    const textEl = card.querySelector(".comment-text");
+                    const currentText = textEl.textContent.trim();
+
+                    const newText = prompt("Edit comment:", currentText);
+
+                    if (newText === null || !newText.trim() || newText.trim() === currentText) {
+                        return;
+                    }
+
+                    const token = getToken();
+
+                    try {
+                        const response = await fetch(
+                            `/api/posts/${postId}/comments/${commentId}`,
+                            {
+                                method: "PATCH",
+                                headers: {
+                                    "Authorization": `Bearer ${token}`,
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({ comment: newText.trim() })
+                            }
+                        );
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            alert(data.detail || "Failed to update comment");
+                            return;
+                        }
+
+                        textEl.textContent = data.comment;
+
+                    } catch (error) {
+                        console.error("Edit comment error:", error);
+                        alert("Error updating comment");
+                    }
+
+                });
+            });
+
+        }
+
+
+        // =====================================================
+        // EDIT POST
+        // =====================================================
+
+        const editPostForm =
+            document.getElementById("editPostForm");
+
+
+        if (editPostForm) {
+
+            editPostForm.addEventListener(
+                "submit",
+                async (event) => {
+
+                    event.preventDefault();
+
+                    const token = getToken();
+
+
+                    if (!token) {
+                        alert("Please login first");
+                        return;
+                    }
+
+
+                    const postData = {
+
+                        title:
+                            document
+                                .getElementById("editTitle")
+                                .value,
+
+                        content:
+                            document
+                                .getElementById("editContent")
+                                .value
+
+                    };
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                `/api/posts/${postId}`,
+                                {
+                                    method: "PATCH",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json",
+
+                                        "Authorization":
+                                            `Bearer ${token}`
+                                    },
+
+                                    body:
+                                        JSON.stringify(postData)
+                                }
+                            );
+
+
+                        if (!response.ok) {
+
+                            const data =
+                                await response.json();
+
+                            alert(
+                                data.detail ||
+                                "Failed to update post"
+                            );
+
+                            return;
+
+                        }
+
+
+                        // Image upload
+                        const imageFile =
+                            document
+                                .getElementById(
+                                    "editPictureInput"
+                                )
+                                .files[0];
+
+
+                        if (imageFile) {
+
+                            const imageFormData =
+                                new FormData();
+
+
+                            imageFormData.append(
+                                "file",
+                                imageFile
+                            );
+
+
+                            const imageResponse =
+                                await fetch(
+                                    `/api/posts/${postId}/picture`,
+                                    {
+                                        method: "PATCH",
+
+                                        headers: {
+                                            "Authorization":
+                                                `Bearer ${token}`
+                                        },
+
+                                        body: imageFormData
+                                    }
+                                );
+
+
+                            if (!imageResponse.ok) {
+
+                                alert(
+                                    "Image upload failed"
+                                );
+
+                                return;
+
+                            }
+
+                        }
+
+
+                        alert(
+                            "Post updated successfully"
+                        );
+
+                        window.location.reload();
+
+
+                    } catch (error) {
+
+                        console.error(
+                            "Edit error:",
+                            error
+                        );
+
+                        alert(
+                            "Error updating post"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+
+        async function loadLikeStatus() {
+            try {
+                const token = getToken();
+
+                const response = await fetch(`/api/posts/${postId}/likes/status`, {
+                    headers: token ? { "Authorization": `Bearer ${token}` } : {}
                 });
 
-                if (response.status === 204) {
-                    window.location.href = "/";
+                if (!response.ok) return;
+
+                const data = await response.json();
+
+                likeCount.textContent = data.likes;
+
+                if (data.liked) {
+                    likeText.textContent = "❤️ Liked";
+                    likeButton.classList.remove("btn-outline-danger");
+                    likeButton.classList.add("btn-danger");
                 } else {
-                    alert("Failed to delete post");
+                    likeText.textContent = "❤️ Like";
+                    likeButton.classList.remove("btn-danger");
+                    likeButton.classList.add("btn-outline-danger");
                 }
-            });
+
+            } catch (error) {
+                console.error("Load like status error:", error);
+            }
+        }
+
+        loadLikeStatus();
+
+
+        // =====================================================
+        // DELETE POST
+        // =====================================================
+
+        const confirmDelete =
+            document.getElementById("confirmDelete");
+
+
+        if (confirmDelete) {
+
+            confirmDelete.addEventListener(
+                "click",
+                async () => {
+
+                    const token = getToken();
+
+
+                    if (!token) {
+                        alert("Please login first");
+                        return;
+                    }
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                `/api/posts/${postId}`,
+                                {
+                                    method: "DELETE",
+
+                                    headers: {
+                                        "Authorization":
+                                            `Bearer ${token}`
+                                    }
+                                }
+                            );
+
+
+                        if (response.status === 204) {
+
+                            window.location.href = "/";
+
+                        } else {
+
+                            const data =
+                                await response.json();
+
+                            alert(
+                                data.detail ||
+                                "Failed to delete post"
+                            );
+
+                        }
+
+
+                    } catch (error) {
+
+                        console.error(
+                            "Delete error:",
+                            error
+                        );
+
+                        alert(
+                            "Error deleting post"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+
 </script>
-{% endblock scripts %}
+    {% endblock scripts %}

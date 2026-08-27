@@ -15,6 +15,7 @@ export async function getCurrentUser() {
   if (!token) {
     return null;
   }
+  console.log("Comment token:", getToken());
 
   fetchPromise = (async () => {
     try {
@@ -33,6 +34,7 @@ export async function getCurrentUser() {
       return null;
     } catch (error) {
       console.error("Error fetching current user:", error);
+      currentUser = null;
       return null;
     } finally {
       fetchPromise = null;

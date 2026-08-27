@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="content-section py-4 px-4">
+
+    <h2 class="mb-4">Announcements</h2>
+
+    <!-- Announcements will be loaded here -->
+    <div id="announcementsContainer">
+        <p class="text-body-secondary">
+            Loading announcements...
+        </p>
+    </div>
+
+</div>
+
+{% endblock content %}
+
+
+{% block scripts %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+    const container =
+        document.getElementById("announcementsContainer");
+
+    try {
+
+        const response =
+            await fetch("/api/announcements");
+
+        console.log("Announcements status:", response.status);
+
+        // ================================
+        // USER NOT LOGGED IN
+        // ================================
+        if (response.status === 401) {
+
+            container.innerHTML = `
+                <div class="text-center py-5">
+
+                    <div class="mb-3">
+                        <span style="font-size: 50px;">🔒</span>
+                    </div>
+
+                    <h3 class="mb-3">
+                        Login Required
+                    </h3>
+
+                    <p class="text-body-secondary fs-5 mb-4">
+                        Please login or register first to see the announcements.
+                    </p>
+
+                    <div class="d-flex justify-content-center gap-3">
+
+                        <a href="/login"
+                           class="btn btn-primary px-4">
+                            Login
+                        </a>
+
+                        <a href="/register"
+                           class="btn btn-outline-primary px-4">
+                            Register
+                        </a>
+
+                    </div>
+
+                </div>
+            `;
+
+            return;
+        }
+
+        // ================================
+        // OTHER SERVER ERROR
+        // ================================
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP error: ${response.status}`
+            );
+        }
+
+        // ================================
+        // GET ANNOUNCEMENTS
+        // ================================
+        const announcements =
+            await response.json();
+
+        container.innerHTML = "";
+
+        // No announcements
+        if (announcements.length === 0) {
+
+            container.innerHTML = `
+                <div class="text-center py-5">
+
+                    <h4>No announcements available</h4>
+
+                    <p class="text-body-secondary">
+                        There are currently no announcements.
+                    </p>
+
+                </div>
+            `;
+
+            return;
+        }
+
+        // Display announcements
+        announcements.forEach(item => {
+
+            container.innerHTML += `
+                <article class="content-section mb-3 p-3">
+
+                    <h4 class="mb-2">
+                        ${item.title}
+                    </h4>
+
+                    <p class="mb-0">
+                        ${item.content}
+                    </p>
+
+                </article>
+            `;
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Failed to load announcements:",
+            error
+        );
+
+        container.innerHTML = `
+            <div class="alert alert-danger">
+
+                <strong>Unable to load announcements.</strong>
+
+                <p class="mb-0 mt-1">
+                    Please try again later.
+                </p>
+
+            </div>
+        `;
+
+    }
+
+});
+
+</script>
+
+{% endblock scripts %}

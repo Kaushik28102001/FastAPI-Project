@@ -32,10 +32,15 @@ class Settings(BaseSettings):
     mail_port: int = 587
     mail_username: str = "1c80f69dac45c4"
     mail_password: str = "fa3972d4ca57ac"
-    mail_from: str = "noreply@example.com"
+    mail_from: str = "noreply@fastapiblog.com"
     mail_use_tls: bool = True
 
     frontend_url: str = "http://localhost:8000"
 
 
 settings = Settings()  # type: ignore[call-arg] # Loaded from .env file
+print(settings.mail_server)
+print(settings.mail_port)
+print(settings.mail_username)
+print(settings.mail_from)
+print(settings.mail_use_tls)

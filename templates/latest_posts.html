@@ -1,0 +1,254 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="content-section py-3 px-4">
+
+    <h2 class="mb-4">Latest Posts</h2>
+
+    <div id="latestPostsContainer">
+        <p>Loading latest posts...</p>
+    </div>
+
+
+    <!-- PAGINATION -->
+    <div class="d-flex justify-content-center align-items-center gap-3 mt-4">
+
+        <button
+            id="prevBtn"
+            class="btn btn-outline-primary">
+            Previous
+        </button>
+
+        <span id="pageInfo">
+            Page 1
+        </span>
+
+        <button
+            id="nextBtn"
+            class="btn btn-outline-primary">
+            Next
+        </button>
+
+    </div>
+
+</div>
+
+{% endblock content %}
+
+
+{% block scripts %}
+
+<script>
+
+let skip = 0;
+const limit = 5;
+
+
+async function loadPosts() {
+
+    const container =
+        document.getElementById("latestPostsContainer");
+
+    try {
+
+        const response =
+            await fetch(`/api/posts?skip=${skip}&limit=${limit}`);
+
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch posts");
+        }
+
+
+        const data =
+            await response.json();
+
+
+        container.innerHTML = "";
+
+
+        // No posts found
+        if (!data.posts || data.posts.length === 0) {
+
+            container.innerHTML = `
+                <div class="alert alert-info">
+                    No posts found.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        data.posts.forEach(post => {
+
+            container.innerHTML += `
+
+                <article class="content-section mb-3 p-3">
+
+
+                    <!-- POST IMAGE -->
+                    ${
+                        post.image_path
+                        ? `
+                            <div class="post-image-container mb-3">
+
+                                <img
+                                    src="${post.image_path}"
+                                    class="post-image"
+                                    alt="${post.title}">
+
+                            </div>
+                        `
+                        : ""
+                    }
+
+
+                    <!-- POST TITLE -->
+                    <h4>
+
+                        <a href="/posts/${post.id}">
+                            ${post.title}
+                        </a>
+
+                    </h4>
+
+
+                    <!-- POST CONTENT -->
+                    <div class="article-content">
+                        ${post.content}
+                    </div>
+
+
+                </article>
+
+            `;
+        });
+
+
+        // Current page calculation
+        const currentPage =
+            Math.floor(skip / limit) + 1;
+
+
+        const totalPages =
+            Math.ceil(data.total / limit);
+
+
+        document
+            .getElementById("pageInfo")
+            .textContent =
+            `Page ${currentPage} of ${totalPages}`;
+
+
+        // Disable Previous button on first page
+        document
+            .getElementById("prevBtn")
+            .disabled =
+            skip === 0;
+
+
+        // Disable Next button if no more posts
+        document
+            .getElementById("nextBtn")
+            .disabled =
+            !data.has_more;
+
+
+    } catch (error) {
+
+        console.error("Error loading posts:", error);
+
+        container.innerHTML = `
+            <div class="alert alert-danger">
+                Failed to load posts.
+            </div>
+        `;
+    }
+}
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+
+    // Load first page
+    loadPosts();
+
+
+    // NEXT BUTTON
+    document
+        .getElementById("nextBtn")
+        .addEventListener("click", () => {
+
+            skip += limit;
+
+            loadPosts();
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+        });
+
+
+    // PREVIOUS BUTTON
+    document
+        .getElementById("prevBtn")
+        .addEventListener("click", () => {
+
+            if (skip >= limit) {
+
+                skip -= limit;
+
+                loadPosts();
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+
+            }
+
+        });
+
+});
+
+</script>
+
+
+<style>
+
+/* ========================================
+   POST IMAGE CONTAINER
+======================================== */
+
+.post-image-container {
+    width: 100%;
+    overflow: hidden;
+}
+
+
+/* ========================================
+   POST IMAGE
+   Full image will be visible.
+   Image will NOT be cropped.
+======================================== */
+
+.post-image {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+
+    object-fit: contain;
+
+    display: block;
+
+    border-radius: 8px;
+}
+
+</style>
+
+{% endblock scripts %}

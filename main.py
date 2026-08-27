@@ -1,11 +1,14 @@
 from contextlib import asynccontextmanager
 from typing import Annotated
-
+from fastapi.responses import HTMLResponse
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.exception_handlers import (
     http_exception_handler,
     request_validation_exception_handler,
 )
+from fastapi.responses import FileResponse
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -13,12 +16,14 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from datetime import date
+from sqlalchemy import func
 
 import models
 
 from database import Base, engine, get_db
 from config import settings
-from routers import posts, users
+from routers import posts, users, announcements, calendar,admin
 
 
 from sqlalchemy import text
@@ -53,7 +58,14 @@ templates = Jinja2Templates(directory="templates")
 
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(posts.router, prefix="/api/posts", tags=["posts"])
+app.include_router(announcements.router)
+app.include_router(admin.router)
 
+from fastapi import Response
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return Response(status_code=204)
 
 @app.get("/", include_in_schema=False, name="home")
 @app.get("/posts", include_in_schema=False, name="posts")
@@ -83,26 +95,38 @@ async def home(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
     )
 
 
-@app.get("/posts/{post_id}", include_in_schema=False)
+@app.get("/posts/{post_id}")
 async def post_page(
-    request: Request,
     post_id: int,
-    db: Annotated[AsyncSession, Depends(get_db)],
+    request: Request,
+    db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
         select(models.Post)
-        .options(selectinload(models.Post.author))
-        .where(models.Post.id == post_id),
-    )
-    post = result.scalars().first()
-    if post:
-        title = post.title[:50]
-        return templates.TemplateResponse(
-            request,
-            "post.html",
-            {"post": post, "title": title},
+        .where(models.Post.id == post_id)
+        .options(
+            selectinload(models.Post.author),
+            selectinload(models.Post.post_likes),
+            selectinload(models.Post.comments),
+            selectinload(models.Post.reposts),
         )
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    )
+
+    post = result.scalar_one_or_none()
+
+    if post is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Post not found",
+        )
+
+    return templates.TemplateResponse(
+    request=request,
+    name="post.html",
+    context={
+        "post": post,
+    },
+)
 
 
 @app.get("/users/{user_id}/posts", include_in_schema=False, name="user_posts")
@@ -149,7 +173,70 @@ async def user_posts_page(
         },
     )
 
+@app.get(
+    "/latest-posts",
+    response_class=HTMLResponse,
+    include_in_schema=False,
+    name="latest_posts_page",
+)
+async def latest_posts_page(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "latest_posts.html",
+        {
+            "title": "Latest Posts"
+        }
+    )
 
+app.include_router(
+    announcements.router,
+    prefix="/api/announcements",
+    tags=["announcements"],
+)
+
+app.include_router(
+    calendar.router,
+    prefix="/api/calendar",
+    tags=["calendar"],
+)
+
+app.include_router(
+    announcements.router,
+    prefix="/api/announcements",
+    tags=["announcements"]
+)
+
+
+@app.get(
+    "/announcements",
+    response_class=HTMLResponse,
+    include_in_schema=False,
+    name="announcements_page",
+)
+async def announcements_page(request: Request):
+    return templates.TemplateResponse(
+    request,
+    "announcements.html",
+    {
+        "title": "Announcements"
+    }
+)
+
+
+@app.get(
+    "/calendar",
+    response_class=HTMLResponse,
+    include_in_schema=False,
+    name="calendar_page",
+)
+async def calendar_page(request: Request):
+   return templates.TemplateResponse(
+    request=request,
+    name="calendar.html",
+    context={
+        "title": "Calendar"
+    }
+)
 @app.get("/login", include_in_schema=False)
 async def login_page(request: Request):
     return templates.TemplateResponse(
@@ -239,4 +326,35 @@ async def validation_exception_handler(
             "message": "Invalid request. Please check your input and try again.",
         },
         status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+    )
+@app.get(
+    "/posts/date/{selected_date}",
+    response_class=HTMLResponse,
+    include_in_schema=False,
+)
+async def posts_by_date(
+    request: Request,
+    selected_date: date,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    result = await db.execute(
+        select(models.Post)
+        .options(selectinload(models.Post.author))
+        .where(
+            func.date(models.Post.date_posted)
+            == selected_date
+        )
+        .order_by(models.Post.date_posted.desc())
+    )
+
+    posts = result.scalars().all()
+
+    return templates.TemplateResponse(
+        request,
+        "posts_by_date.html",
+        {
+            "title": f"Posts for {selected_date}",
+            "posts": posts,
+            "selected_date": selected_date,
+        },
     )

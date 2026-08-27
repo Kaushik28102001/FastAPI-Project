@@ -1,7 +1,8 @@
 
-from datetime import datetime
+from datetime import datetime,date
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
+
 
 
 # ============================================================
@@ -32,6 +33,7 @@ class UserPublic(BaseModel):
     username: str
     image_file: str | None
     image_path: str
+    is_admin: bool   
 
 
 class UserPrivate(UserPublic):
@@ -172,4 +174,118 @@ class SendOtpRequest(BaseModel):
     username: str
     email: EmailStr
     password: str
+
+# ============================================================
+# ANNOUNCEMENTS
+# ============================================================
+
+class AnnouncementCreate(BaseModel):
+    title: str = Field(
+        min_length=1,
+        max_length=200,
+    )
+
+    content: str = Field(
+        min_length=1,
+    )
+
+
+class AnnouncementUpdate(BaseModel):
+    title: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=200,
+    )
+
+    content: str | None = Field(
+        default=None,
+        min_length=1,
+    )
+
+
+class AnnouncementResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    content: str
+    created_at: datetime
+# ============================================================
+# CALENDAR EVENTS
+# ============================================================
+
+class CalendarEventCreate(BaseModel):
+    title: str = Field(
+        min_length=1,
+        max_length=200,
+    )
+
+    description: str | None = None
+
+    event_date: date
+
+
+class CalendarEventUpdate(BaseModel):
+    title: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=200,
+    )
+
+    description: str | None = None
+
+    event_date: date | None = None
+
+
+class CalendarEventResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    description: str | None
+    event_date: date
+    created_at: datetime
+    
+# ============================================================
+# ANNOUNCEMENT COMMENTS
+# ============================================================
+
+class AnnouncementCommentCreate(BaseModel):
+    comment: str
+
+
+class AnnouncementCommentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    announcement_id: int
+    user_id: int
+    comment: str
+    created_at: datetime
+
+# ============================================================
+# POST COMMENTS
+# ============================================================
+class CommentCreate(BaseModel):
+    comment: str = Field(
+        min_length=1,
+    )
+class CommentUser(BaseModel):
+    id: int
+    username: str
+
+    class Config:
+        from_attributes = True
+
+
+class CommentResponse(BaseModel):
+    id: int
+    comment: str
+    user_id: int
+    post_id: int
+    created_at: datetime
+    user: CommentUser          # <-- add this
+
+class Config:
+    from_attributes = True
 

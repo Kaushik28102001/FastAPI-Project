@@ -1,0 +1,456 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="content-section py-3 px-4 mb-4 d-none" id="postsByDateSection">
+
+    <h2>Posts by Date</h2>
+
+    <div class="d-flex gap-2 align-items-end mt-3 mb-3">
+
+        <div>
+            <label for="postDateInput" class="form-label">Select a date</label>
+            <input type="date" class="form-control" id="postDateInput">
+        </div>
+
+        <button type="button" class="btn btn-primary" id="viewPostsBtn">
+            View Posts
+        </button>
+
+    </div>
+
+    <div id="postsByDateContainer"></div>
+
+</div>
+
+<div class="content-section py-3 px-4 d-none" id="loginPromptSection">
+    <p class="text-body-secondary mb-0">
+        <a href="{{ url_for('login_page') }}">Log in</a> to view posts by date.
+    </p>
+</div>
+
+<div class="content-section py-3 px-4 d-none" id="calendarSection">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Calendar Events</h2>
+        <button type="button" class="btn btn-primary btn-sm" id="addEventBtn">
+            + Add Event
+        </button>
+    </div>
+
+    <!-- ADD/EDIT EVENT FORM -->
+    <form id="eventForm" class="content-section p-3 mb-3 d-none">
+
+        <input type="hidden" id="eventId" value="">
+
+        <div class="mb-2">
+            <label for="eventTitle" class="form-label">Title</label>
+            <input type="text" class="form-control" id="eventTitle" required>
+        </div>
+
+        <div class="mb-2">
+            <label for="eventDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="eventDescription" rows="2" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="eventDate" class="form-label">Date</label>
+            <input type="date" class="form-control" id="eventDate" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-sm">Save Event</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="cancelEventBtn">Cancel</button>
+
+    </form>
+
+    <div id="calendarContainer">
+        Loading events...
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+
+import { getCurrentUser, getToken } from '/static/js/auth.js';
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+    const calendarSection =
+        document.getElementById("calendarSection");
+
+    const container =
+        document.getElementById("calendarContainer");
+
+    const eventForm =
+        document.getElementById("eventForm");
+
+    const eventIdInput =
+        document.getElementById("eventId");
+
+    const eventTitleInput =
+        document.getElementById("eventTitle");
+
+    const eventDescriptionInput =
+        document.getElementById("eventDescription");
+
+    const eventDateInput =
+        document.getElementById("eventDate");
+
+    const addEventBtn =
+        document.getElementById("addEventBtn");
+
+    const cancelEventBtn =
+        document.getElementById("cancelEventBtn");
+
+
+    // =====================================================
+    // LOAD + RENDER EVENTS (admin only)
+    // =====================================================
+
+    async function loadEvents() {
+
+        const token = getToken();
+
+        try {
+
+            const response = await fetch("/api/calendar", {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to load events");
+            }
+
+            const events = await response.json();
+
+            container.innerHTML = "";
+
+            if (events.length === 0) {
+                container.innerHTML =
+                    `<p class="text-body-secondary">No events yet.</p>`;
+                return;
+            }
+
+            events.forEach(event => {
+
+                const article = document.createElement("article");
+                article.className = "content-section mb-3 p-3";
+                article.dataset.eventId = event.id;
+
+                article.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h4>${event.title}</h4>
+                            <p>${event.description}</p>
+                            <small>
+                                ${new Date(event.event_date).toLocaleDateString()}
+                            </small>
+                        </div>
+
+                        ${
+                            user && user.is_admin
+                            ? `
+                                <div class="btn-group btn-group-sm">
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary edit-event-btn">
+                                        Edit
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-danger delete-event-btn">
+                                        Delete
+                                    </button>
+                                </div>
+                            `
+                            : ""
+                        }
+                    </div>
+                `;
+
+                container.appendChild(article);
+
+            });
+
+            if (user && user.is_admin) {
+                attachEventActionHandlers();
+            }
+
+        } catch (error) {
+
+            console.error("Load calendar events error:", error);
+
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    Failed to load calendar events.
+                </div>
+            `;
+
+        }
+
+    }
+
+
+    function attachEventActionHandlers() {
+
+        document.querySelectorAll(".edit-event-btn").forEach(btn => {
+
+            btn.addEventListener("click", (e) => {
+
+                const article = e.target.closest("[data-event-id]");
+                const eventId = article.dataset.eventId;
+
+                const title = article.querySelector("h4").textContent;
+                const description = article.querySelector("p").textContent;
+                const dateText = article.querySelector("small").textContent.trim();
+
+                eventIdInput.value = eventId;
+                eventTitleInput.value = title;
+                eventDescriptionInput.value = description;
+                eventDateInput.value = new Date(dateText).toISOString().split("T")[0];
+
+                eventForm.classList.remove("d-none");
+                eventForm.scrollIntoView({ behavior: "smooth", block: "start" });
+
+            });
+
+        });
+
+        document.querySelectorAll(".delete-event-btn").forEach(btn => {
+
+            btn.addEventListener("click", async (e) => {
+
+                const article = e.target.closest("[data-event-id]");
+                const eventId = article.dataset.eventId;
+
+                if (!confirm("Delete this event?")) {
+                    return;
+                }
+
+                const token = getToken();
+
+                try {
+
+                    const response = await fetch(
+                        `/api/calendar/${eventId}`,
+                        {
+                            method: "DELETE",
+                            headers: {
+                                "Authorization": `Bearer ${token}`
+                            }
+                        }
+                    );
+
+                    if (response.status === 204) {
+                        article.remove();
+                    } else {
+                        const data = await response.json();
+                        alert(data.detail || "Failed to delete event");
+                    }
+
+                } catch (error) {
+
+                    console.error("Delete event error:", error);
+                    alert("Error deleting event");
+
+                }
+
+            });
+
+        });
+
+    }
+
+
+    // =====================================================
+    // ADD / EDIT FORM
+    // =====================================================
+
+    addEventBtn.addEventListener("click", () => {
+
+        eventIdInput.value = "";
+        eventTitleInput.value = "";
+        eventDescriptionInput.value = "";
+        eventDateInput.value = "";
+
+        eventForm.classList.remove("d-none");
+        eventForm.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    });
+
+    cancelEventBtn.addEventListener("click", () => {
+        eventForm.classList.add("d-none");
+    });
+
+    eventForm.addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+
+        const token = getToken();
+
+        const eventId = eventIdInput.value;
+
+        const payload = {
+            title: eventTitleInput.value,
+            description: eventDescriptionInput.value,
+            event_date: eventDateInput.value
+        };
+
+        try {
+
+            const response = await fetch(
+                eventId ? `/api/calendar/${eventId}` : "/api/calendar",
+                {
+                    method: eventId ? "PATCH" : "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                }
+            );
+
+            if (!response.ok) {
+                const data = await response.json();
+                alert(data.detail || "Failed to save event");
+                return;
+            }
+
+            eventForm.classList.add("d-none");
+
+            await loadEvents();
+
+        } catch (error) {
+
+            console.error("Save event error:", error);
+            alert("Error saving event");
+
+        }
+
+    });
+
+
+    // =====================================================
+    // ADMIN CHECK — reveal calendar section only for admins
+    // =====================================================
+
+    
+
+const user = await getCurrentUser();
+
+calendarSection.classList.remove("d-none");
+
+await loadEvents();
+
+const isAdmin = user && user.is_admin;
+
+if (!isAdmin) {
+    addEventBtn.classList.add("d-none");
+}
+
+
+    // =====================================================
+    // POSTS BY DATE (logged-in users only)
+    // =====================================================
+
+    const postsByDateSection =
+        document.getElementById("postsByDateSection");
+
+    const loginPromptSection =
+        document.getElementById("loginPromptSection");
+
+    if (user) {
+
+        postsByDateSection.classList.remove("d-none");
+
+        const postDateInput =
+            document.getElementById("postDateInput");
+
+        const viewPostsBtn =
+            document.getElementById("viewPostsBtn");
+
+        const postsByDateContainer =
+            document.getElementById("postsByDateContainer");
+
+        viewPostsBtn.addEventListener("click", async () => {
+
+            const selectedDate = postDateInput.value;
+
+            if (!selectedDate) {
+                alert("Please select a date");
+                return;
+            }
+
+            postsByDateContainer.innerHTML =
+                `<p class="text-body-secondary">Loading posts...</p>`;
+
+            try {
+
+                const response = await fetch(
+                    `/api/posts/date/${selectedDate}`
+                );
+
+                if (!response.ok) {
+                    throw new Error("Failed to load posts");
+                }
+
+                const posts = await response.json();
+
+                if (posts.length === 0) {
+                    postsByDateContainer.innerHTML = `
+                        <p class="text-body-secondary">
+                            No posts found for this date.
+                        </p>
+                    `;
+                    return;
+                }
+
+                postsByDateContainer.innerHTML = "";
+
+                posts.forEach(post => {
+
+                    postsByDateContainer.innerHTML += `
+                        <article class="content-section mb-3 p-3">
+                            <h4>
+                                <a href="/posts/${post.id}">
+                                    ${post.title}
+                                </a>
+                            </h4>
+                            <p>${post.short_content}</p>
+                            <small class="text-body-secondary">
+                                by ${post.author.username} —
+                                ${new Date(post.date_posted).toLocaleDateString()}
+                            </small>
+                        </article>
+                    `;
+
+                });
+
+            } catch (error) {
+
+                console.error("Load posts by date error:", error);
+
+                postsByDateContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        Failed to load posts for this date.
+                    </div>
+                `;
+
+            }
+
+        });
+
+    } else {
+
+        loginPromptSection.classList.remove("d-none");
+
+    }
+
+});
+
+</script>
+{% endblock %}

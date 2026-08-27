@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="content-section py-4">
+
+    <h2>Admin Dashboard</h2>
+
+    <div class="list-group mt-4">
+
+        <a href="/admin/posts"
+           class="list-group-item list-group-item-action">
+            Manage Posts
+        </a>
+
+        <a href="/admin/announcements"
+           class="list-group-item list-group-item-action">
+            Manage Announcements
+        </a>
+
+        <a href="/admin/calendar"
+           class="list-group-item list-group-item-action">
+            Manage Calendar
+        </a>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+    {% extends "layout.html" %}
+
+{% block content %}
+
+<h2 class="mb-4">
+    Posts for {{ selected_date }}
+</h2>
+
+{% if posts %}
+
+    {% for post in posts %}
+
+        <article class="content-section mb-3 p-3">
+
+            <h4>
+                <a href="/posts/{{ post.id }}">
+                    {{ post.title }}
+                </a>
+            </h4>
+
+            <p>{{ post.short_content }}</p>
+
+        </article>
+
+    {% endfor %}
+
+{% else %}
+
+    <div class="alert alert-info">
+        No posts found for this date.
+    </div>
+
+{% endif %}
+
+{% endblock %}
