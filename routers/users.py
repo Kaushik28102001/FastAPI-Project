@@ -1,7 +1,11 @@
 from datetime import UTC, datetime, timedelta
 from typing import Annotated
 import random
+
+from email_utils import send_email,send_password_reset_email,send_otp_email
+
 from email_utils import send_email
+
 
 from fastapi import (
     APIRouter,
@@ -10,7 +14,7 @@ from fastapi import (
     HTTPException,
     Query,
     UploadFile,
-    status,
+    status,Response
 )
 from fastapi.security import OAuth2PasswordRequestForm
 from PIL import UnidentifiedImageError
@@ -88,6 +92,7 @@ async def verify_otp(
             username=record["username"],
             email=data.email,
             password_hash=hash_password(record["password"]),
+            is_admin=data.email.lower() == "kaushiksharma759@gmail.com",
         )
 
         db.add(new_user)
@@ -189,34 +194,51 @@ async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
+    response: Response,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    # Look up user by email (case-insensitive)
-    # Note: OAuth2PasswordRequestForm uses "username" field, but we treat it as email
     result = await db.execute(
         select(models.User).where(
             func.lower(models.User.email) == form_data.username.lower(),
         ),
     )
+
     user = result.scalars().first()
 
-    # Verify user exists and password is correct
-    # Don't reveal which one failed (security best practice)
-    if not user or not verify_password(form_data.password, user.password_hash):
+    if not user or not verify_password(
+        form_data.password,
+        user.password_hash,
+    ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Create access token with user id as subject
-    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+    access_token_expires = timedelta(
+        minutes=settings.access_token_expire_minutes
+    )
+
     access_token = create_access_token(
         data={"sub": str(user.id)},
         expires_delta=access_token_expires,
     )
-    return Token(access_token=access_token, token_type="bearer")
+
+    # Store JWT in browser cookie
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,       # True when using HTTPS
+        samesite="lax",
+        max_age=settings.access_token_expire_minutes * 60,
+    )
+
+    return Token(
+        access_token=access_token,
+        token_type="bearer",
+    )
 
 
 @router.get("/me", response_model=UserPrivate)
@@ -535,7 +557,47 @@ async def upload_profile_picture(
 
     return current_user
 
+@router.post("/send-otp")
+async def send_otp(data: SendOtpRequest):
 
+    try:
+        otp = str(random.randint(100000, 999999))
+
+        otp_store[data.email] = {
+            "otp": otp,
+            "expires": datetime.utcnow() + timedelta(minutes=5),
+            "username": data.username,
+            "password": data.password,
+        }
+
+        print("=================================")
+        print("OTP GENERATED")
+        print("Email:", data.email)
+        print("OTP:", otp)
+        print("=================================")
+
+        await send_otp_email(
+            to_email=data.email,
+            username=data.username,
+            otp=otp,
+        )
+
+        return {
+            "message": "OTP sent successfully"
+        }
+
+    except Exception as e:
+
+        print("=================================")
+        print("SEND OTP ERROR")
+        print(type(e).__name__)
+        print(str(e))
+        print("=================================")
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to send OTP: {str(e)}"
+        )
 @router.delete("/{user_id}/picture", response_model=UserPrivate)
 async def delete_user_picture(
     user_id: int,
