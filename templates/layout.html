@@ -344,10 +344,7 @@
             // Initialize
             setTheme(localStorage.getItem('theme') || 'auto');
         </script>
-<<<<<<< HEAD
-       
-               
-=======
+
        <script>
                 document.addEventListener("DOMContentLoaded", function () {
 
@@ -507,23 +504,33 @@
 
                 });
         </script>
-        <script>
+                <script>
             document.addEventListener("DOMContentLoaded", function () {
 
-                const announcementsLink =
-                    document.getElementById("announcementsLink");
+                const announcementsLink = document.getElementById("announcementsLink");
+                const announcementsSection = document.getElementById("announcementsSection");
+                const closeAnnouncements = document.getElementById("closeAnnouncements");
 
-                const announcementsSection =
-                    document.getElementById("announcementsSection");
+                if (announcementsLink) {
+                    announcementsLink.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        announcementsSection.classList.remove("d-none");
+                        announcementsSection.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+                    });
+                }
 
-                const closeAnnouncements =
-                    document.getElementById("closeAnnouncements");
->>>>>>> 03872c2da4c13952aff3ea0453b1ce61dd25795a
+                if (closeAnnouncements) {
+                    closeAnnouncements.addEventListener("click", function () {
+                        announcementsSection.classList.add("d-none");
+                    });
+                }
 
-                    
-        
-        
-        <!-- Auth State Management -->
+            });
+        </script>
+
         <script type="module">
             import { getCurrentUser } from '/static/js/auth.js';
             import { getToken, clearUserCache } from '/static/js/auth.js';
