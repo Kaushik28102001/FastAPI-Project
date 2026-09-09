@@ -557,7 +557,47 @@ async def upload_profile_picture(
 
     return current_user
 
+@router.post("/send-otp")
+async def send_otp(data: SendOtpRequest):
 
+    try:
+        otp = str(random.randint(100000, 999999))
+
+        otp_store[data.email] = {
+            "otp": otp,
+            "expires": datetime.utcnow() + timedelta(minutes=5),
+            "username": data.username,
+            "password": data.password,
+        }
+
+        print("=================================")
+        print("OTP GENERATED")
+        print("Email:", data.email)
+        print("OTP:", otp)
+        print("=================================")
+
+        await send_otp_email(
+            to_email=data.email,
+            username=data.username,
+            otp=otp,
+        )
+
+        return {
+            "message": "OTP sent successfully"
+        }
+
+    except Exception as e:
+
+        print("=================================")
+        print("SEND OTP ERROR")
+        print(type(e).__name__)
+        print(str(e))
+        print("=================================")
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to send OTP: {str(e)}"
+        )
 @router.delete("/{user_id}/picture", response_model=UserPrivate)
 async def delete_user_picture(
     user_id: int,
