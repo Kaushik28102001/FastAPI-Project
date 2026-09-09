@@ -2,10 +2,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated
 import random
 
-from email_utils import send_email,send_password_reset_email,send_otp_email
-
-from email_utils import send_email
-
+from email_utils import send_email, send_password_reset_email, send_otp_email
 
 from fastapi import (
     APIRouter,
@@ -14,7 +11,8 @@ from fastapi import (
     HTTPException,
     Query,
     UploadFile,
-    status,Response
+    status,
+    Response,
 )
 from fastapi.security import OAuth2PasswordRequestForm
 from PIL import UnidentifiedImageError
@@ -36,7 +34,6 @@ from auth import (
 )
 from config import settings
 from otp_store import otp_store
-from database import get_db
 
 from image_utils import delete_profile_image, process_profile_image
 from schemas import (
@@ -55,6 +52,7 @@ from schemas import (
 )
 
 router = APIRouter()
+
 
 @router.post("/verify-otp")
 async def verify_otp(
@@ -112,6 +110,8 @@ async def verify_otp(
         await db.rollback()
 
         raise
+
+
 @router.post("/send-otp")
 async def send_otp(data: SendOtpRequest):
 
@@ -131,10 +131,10 @@ async def send_otp(data: SendOtpRequest):
         print("OTP:", otp)
         print("=================================")
 
-        await send_email(
-            data.email,
-            data.username,
-            otp,
+        await send_otp_email(
+            to_email=data.email,
+            username=data.username,
+            otp=otp,
         )
 
         return {
@@ -153,6 +153,8 @@ async def send_otp(data: SendOtpRequest):
             status_code=500,
             detail=f"Failed to send OTP: {str(e)}"
         )
+
+
 @router.post(
     "",
     response_model=UserPrivate,
@@ -343,12 +345,6 @@ async def reset_password(
     return {
         "message": "Password reset successfully. You can now log in with your new password.",
     }
-
-# @router.post("/send-otp")
-# async def send_otp(data: SendOtpRequest):
-
-# @router.post("/verify-otp")
-# async def verify_otp(data: VerifyOtpRequest):
 
 
 @router.patch("/me/password", status_code=status.HTTP_200_OK)
@@ -557,47 +553,7 @@ async def upload_profile_picture(
 
     return current_user
 
-@router.post("/send-otp")
-async def send_otp(data: SendOtpRequest):
 
-    try:
-        otp = str(random.randint(100000, 999999))
-
-        otp_store[data.email] = {
-            "otp": otp,
-            "expires": datetime.utcnow() + timedelta(minutes=5),
-            "username": data.username,
-            "password": data.password,
-        }
-
-        print("=================================")
-        print("OTP GENERATED")
-        print("Email:", data.email)
-        print("OTP:", otp)
-        print("=================================")
-
-        await send_otp_email(
-            to_email=data.email,
-            username=data.username,
-            otp=otp,
-        )
-
-        return {
-            "message": "OTP sent successfully"
-        }
-
-    except Exception as e:
-
-        print("=================================")
-        print("SEND OTP ERROR")
-        print(type(e).__name__)
-        print(str(e))
-        print("=================================")
-
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to send OTP: {str(e)}"
-        )
 @router.delete("/{user_id}/picture", response_model=UserPrivate)
 async def delete_user_picture(
     user_id: int,
