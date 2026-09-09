@@ -23,17 +23,23 @@ import models
 
 from database import Base, engine, get_db
 from config import settings
+<<<<<<< HEAD
 
 from routers import posts, users, announcements, calendar,admin
 
 
+=======
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
 from routers import posts, users
 
 
 from sqlalchemy import text
 
+<<<<<<< HEAD
 from sqlalchemy import text
 
+=======
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     print("Creating tables...")
@@ -333,6 +339,7 @@ async def validation_exception_handler(
         },
         status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
     )
+<<<<<<< HEAD
 
 @app.get(
     "/posts/date/{selected_date}",
@@ -366,3 +373,5 @@ async def posts_by_date(
         },
     )
 
+=======
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5

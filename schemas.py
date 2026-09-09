@@ -1,10 +1,17 @@
 
+<<<<<<< HEAD
 from datetime import datetime,date
+=======
+from datetime import datetime
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
 # ============================================================
 # USER SCHEMAS
 # ============================================================
@@ -92,6 +99,7 @@ class PostBase(BaseModel):
     """
     Common post fields returned by the API.
     """
+<<<<<<< HEAD
 
     title: str = Field(
         min_length=1,
@@ -102,6 +110,18 @@ class PostBase(BaseModel):
         min_length=1,
     )
 
+=======
+
+    title: str = Field(
+        min_length=1,
+        max_length=100,
+    )
+
+    short_content: str = Field(
+        min_length=1,
+    )
+
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
     content: str = Field(
         min_length=1,
     )
@@ -175,6 +195,7 @@ class SendOtpRequest(BaseModel):
     email: EmailStr
     password: str
 
+<<<<<<< HEAD
 # ============================================================
 # ANNOUNCEMENTS
 # ============================================================
@@ -289,3 +310,5 @@ class CommentResponse(BaseModel):
 class Config:
     from_attributes = True
 
+=======
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5

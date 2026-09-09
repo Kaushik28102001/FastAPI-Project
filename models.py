@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 from datetime import UTC, datetime, date
@@ -58,6 +59,7 @@ class User(Base):
         default=None,
     )
 
+<<<<<<< HEAD
     is_admin: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
@@ -87,6 +89,16 @@ class User(Base):
 
     comments: Mapped[list["PostComment"]] = relationship(
         "PostComment",
+=======
+    # User -> Posts relationship
+    posts: Mapped[list[Post]] = relationship(
+        back_populates="author",
+        cascade="all, delete-orphan",
+    )
+
+    # User -> Password reset tokens
+    reset_tokens: Mapped[list[PasswordResetToken]] = relationship(
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
         back_populates="user",
         cascade="all, delete-orphan",
     )
@@ -138,6 +150,10 @@ class Post(Base):
         default=None,
     )
 
+<<<<<<< HEAD
+=======
+    # Only ONE user_id declaration
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
     user_id: Mapped[int] = mapped_column(
         ForeignKey("users.id"),
         nullable=False,
@@ -149,11 +165,31 @@ class Post(Base):
         default=lambda: datetime.now(UTC),
     )
 
+<<<<<<< HEAD
     # Post -> User
     author: Mapped["User"] = relationship(
         "User",
         back_populates="posts",
     )
+=======
+    likes: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        server_default="0",
+    )
+
+    # Post -> User relationship
+    author: Mapped[User] = relationship(
+        back_populates="posts",
+    )
+
+    @property
+    def image_path(self) -> str:
+        if self.image_file:
+            return f"/media/post_pics/{self.image_file}"
+
+        return "/static/post_pics/default.jpg"
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
 
     post_likes: Mapped[list["PostLike"]] = relationship(
         "PostLike",
@@ -215,6 +251,7 @@ class PasswordResetToken(Base):
         default=lambda: datetime.now(UTC),
     )
 
+<<<<<<< HEAD
     user: Mapped["User"] = relationship(
         "User",
         back_populates="reset_tokens",
@@ -461,3 +498,10 @@ class Repost(Base):
         back_populates="reposts",
     )
     
+=======
+    # PasswordResetToken -> User relationship
+    user: Mapped[User] = relationship(
+        back_populates="reset_tokens",
+    )
+
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5

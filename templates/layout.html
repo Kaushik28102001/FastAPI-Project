@@ -127,15 +127,25 @@
                 </div>
             </nav>
         </header>
+<<<<<<< HEAD
         <main role="main" class="container">
 
                 <div class="row g-4">
 
+=======
+        <main role="main" class="container py-4">
+
+                <!-- Main page layout -->
+                <div class="row g-4">
+
+                    <!-- Posts -->
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
                     <div class="col-12 col-lg-8">
 
                         {% block content %}
                         {% endblock content %}
 
+<<<<<<< HEAD
                     </div>
 
                     <div class="col-12 col-lg-4">
@@ -201,6 +211,168 @@
                 </p>
 
                 <p class="text-body-secondary small mb-0">
+=======
+                        <!-- Latest Posts Section -->
+                        <div id="latestPostsSection"
+                            class="content-section mt-4 d-none">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="mb-0">Latest Posts</h3>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        id="closeLatestPosts">
+                                    Close
+                                </button>
+                            </div>
+
+                            <div id="latestPostsContainer">
+                                <p class="text-body-secondary">
+                                    Loading posts...
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <!-- Calendar Section -->
+                        <div id="calendarSection"
+                            class="content-section mt-4 d-none">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="mb-0">Calendar</h3>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        id="closeCalendar">
+                                    Close
+                                </button>
+                            </div>
+
+                            <div class="mb-4">
+
+                                <label for="calendarDate" class="form-label">
+                                    Select a date
+                                </label>
+
+                                <input type="date"
+                                    id="calendarDate"
+                                    class="form-control">
+
+                            </div>
+
+                            <div id="calendarPosts">
+
+                                <p class="text-body-secondary">
+                                    Select a date to see posts.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Sidebar -->
+                    <div class="col-12 col-lg-4">
+
+                        <aside class="sidebar">
+
+                            <div class="content-section py-3 px-4 mb-4">
+
+                                <h3>Our Sidebar</h3>
+
+                                <p class="text-body-secondary">
+                                    You can put any information here you'd like.
+                                </p>
+
+                                <div class="list-group">
+
+                                    <!-- Latest Posts -->
+                                    <a href="#"
+                                    id="latestPostsLink"
+                                    class="list-group-item list-group-item-action">
+
+                                        Latest Posts
+
+                                    </a>
+
+
+                                    <!-- Announcements -->
+                                    <a href="#"
+                                    id="announcementsLink"
+                                    class="list-group-item list-group-item-action">
+
+                                        Announcements
+
+                                    </a>
+
+
+                                    <!-- Calendar -->
+                                    <a href="#"
+                                    id="calendarLink"
+                                    class="list-group-item list-group-item-action">
+
+                                        Calendars
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </aside>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Announcements Section -->
+                <div class="row">
+
+                    <div class="col-12">
+
+                        <div id="announcementsSection"
+                            class="content-section mt-4 d-none">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                                <h3 class="mb-0">
+                                    Latest News & Announcements
+                                </h3>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        id="closeAnnouncements">
+
+                                    Close
+
+                                </button>
+
+                            </div>
+
+
+                            <div id="announcementsContainer">
+
+                                <p class="text-body-secondary">
+                                    Loading announcements...
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+    </main>
+        <footer class="mt-auto py-3 bg-body-tertiary border-top">
+            <div class="container text-center">
+                <p class="text-body-secondary mb-0">
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
                     © <span id="year"></span> Kumar Kaushik
                 </p>
             </div>
@@ -344,7 +516,10 @@
             // Initialize
             setTheme(localStorage.getItem('theme') || 'auto');
         </script>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
        <script>
                 document.addEventListener("DOMContentLoaded", function () {
 
@@ -504,6 +679,7 @@
 
                 });
         </script>
+<<<<<<< HEAD
                 <script>
             document.addEventListener("DOMContentLoaded", function () {
 
@@ -515,10 +691,37 @@
                     announcementsLink.addEventListener("click", function (event) {
                         event.preventDefault();
                         announcementsSection.classList.remove("d-none");
+=======
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+                const announcementsLink =
+                    document.getElementById("announcementsLink");
+
+                const announcementsSection =
+                    document.getElementById("announcementsSection");
+
+                const closeAnnouncements =
+                    document.getElementById("closeAnnouncements");
+
+
+                // Open Announcements
+                if (announcementsLink) {
+
+                    announcementsLink.addEventListener("click", function (event) {
+
+                        event.preventDefault();
+
+                        // Show announcements
+                        announcementsSection.classList.remove("d-none");
+
+                        // Scroll to announcements
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
                         announcementsSection.scrollIntoView({
                             behavior: "smooth",
                             block: "start"
                         });
+<<<<<<< HEAD
                     });
                 }
 
@@ -526,11 +729,32 @@
                     closeAnnouncements.addEventListener("click", function () {
                         announcementsSection.classList.add("d-none");
                     });
+=======
+
+                    });
+
+                }
+
+
+                // Close Announcements
+                if (closeAnnouncements) {
+
+                    closeAnnouncements.addEventListener("click", function () {
+
+                        announcementsSection.classList.add("d-none");
+
+                    });
+
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
                 }
 
             });
         </script>
+<<<<<<< HEAD
 
+=======
+        <!-- Auth State Management -->
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
         <script type="module">
             import { getCurrentUser } from '/static/js/auth.js';
             import { getToken, clearUserCache } from '/static/js/auth.js';
@@ -556,10 +780,174 @@
 
             updateAuthUI();
         </script>
+<<<<<<< HEAD
         
                 
 
         
+=======
+        <script>
+                document.addEventListener("DOMContentLoaded", function () {
+
+                    const latestPostsLink = document.getElementById("latestPostsLink");
+                    const latestPostsSection = document.getElementById("latestPostsSection");
+                    const latestPostsContainer = document.getElementById("latestPostsContainer");
+                    const closeLatestPosts = document.getElementById("closeLatestPosts");
+
+
+                    if (latestPostsLink) {
+
+                        latestPostsLink.addEventListener("click", async function (event) {
+
+                            event.preventDefault();
+
+                            // Show the section
+                            latestPostsSection.classList.remove("d-none");
+
+                            // Show loading message
+                            latestPostsContainer.innerHTML = `
+                                <p>Loading latest posts...</p>
+                            `;
+
+                            try {
+
+                                const response = await fetch(
+                                    "/api/posts?skip=0&limit=10"
+                                );
+
+                                if (!response.ok) {
+                                    throw new Error("Failed to load posts");
+                                }
+
+                                const data = await response.json();
+
+                                if (!data.posts || data.posts.length === 0) {
+
+                                    latestPostsContainer.innerHTML = `
+                                        <p>No posts available.</p>
+                                    `;
+
+                                    return;
+                                }
+
+
+                                latestPostsContainer.innerHTML = "";
+
+
+                                data.posts.forEach(function (post) {
+
+                                    const postElement = document.createElement("article");
+
+                                    postElement.className =
+                                        "content-section py-3 px-4 mb-3";
+
+
+                                    postElement.innerHTML = `
+
+                                        <div class="d-flex align-items-start gap-3">
+
+                                            <img
+                                                class="rounded-circle"
+                                                src="${post.author.image_path}"
+                                                alt="${post.author.username}"
+                                                width="50"
+                                                style="object-fit: cover; max-width: 100%;"
+                                                height="50"
+                                            >
+
+                                            <divclass="flex-grow-1 overflow-hidden w-100" >
+
+                                                <div class="article-metadata mb-2">
+
+                                                    <strong>
+                                                        ${post.author.username}
+                                                    </strong>
+
+                                                    <small class="text-body-secondary ms-2">
+                                                        ${new Date(post.date_posted).toLocaleDateString()}
+                                                    </small>
+
+                                                </div>
+
+
+                                                <h4>
+                                                    <a href="/posts/${post.id}">
+                                                        ${post.title}
+                                                    </a>
+                                                </h4>
+
+
+                                                ${
+                                                    post.image_file
+                                                    ?
+                                                    `
+                                                    <img
+                                                        src="/media/post_pics/${post.image_file}"
+                                                        class="img-fluid rounded mb-3 d-block"
+                                                        style="width: 100%; height: auto; max-height: 500px; object-fit: contain;"
+                                                        alt="${post.title}"
+                                                    >
+                                                    `
+                                                    :
+                                                    ""
+                                                }
+
+
+                                                <p>
+                                                    ${post.content}
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+                                    `;
+
+
+                                    latestPostsContainer.appendChild(postElement);
+
+                                });
+
+
+                                // Scroll to the posts
+                                latestPostsSection.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "start"
+                                });
+
+
+                            } catch (error) {
+
+                                console.error(
+                                    "Error loading latest posts:",
+                                    error
+                                );
+
+                                latestPostsContainer.innerHTML = `
+                                    <div class="alert alert-danger">
+                                        Failed to load latest posts.
+                                        Please try again.
+                                    </div>
+                                `;
+                            }
+
+                        });
+
+                    }
+
+
+                    if (closeLatestPosts) {
+
+                        closeLatestPosts.addEventListener("click", function () {
+
+                            latestPostsSection.classList.add("d-none");
+
+                        });
+
+                    }
+
+                });
+        </script>
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
         <!-- Create Post Form Handler -->
         <script type="module">
             import {
@@ -571,6 +959,7 @@
               let postId = null;
 
                 async function loadUserData() {
+<<<<<<< HEAD
                         const user = await getCurrentUser();
 
                         if (!user) {
@@ -586,6 +975,29 @@
 
                     
                    
+=======
+                    const user = await getCurrentUser();
+
+                    if (!user) {
+                        // Don't redirect if already on login or register page
+                        if (
+                            window.location.pathname !== "/login" &&
+                            window.location.pathname !== "/register"
+                        ) {
+                            window.location.href = "/login";
+                        }
+                        return;
+                    }
+
+                    
+                    currentUserId = user.id;
+
+                    console.log("Logged-in user:", user);
+                    console.log("Current user ID:", postId);
+                }
+
+                loadUserData();
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
             const createForm = document.getElementById("createPostForm");
             // const uploadBtn = document.getElementById('uploadPictureBtn');
             const pictureInput = document.getElementById('pictureInput');
@@ -659,9 +1071,15 @@
 
         //     if (response.ok) {
         //         const data = await response.json();
+<<<<<<< HEAD
 
         //    clearUserCache();
 
+=======
+
+        //    clearUserCache();
+
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
                 
 
         //         pictureInput.value = '';
@@ -727,9 +1145,15 @@
                         showModal("errorModal");
                         return;
                     }
+<<<<<<< HEAD
 
                     console.log("POST CREATED:", post);
 
+=======
+
+                    console.log("POST CREATED:", post);
+
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
                     // Upload image if selected
                     const file = pictureInput.files[0];
 

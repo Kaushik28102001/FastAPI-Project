@@ -2,6 +2,7 @@ from typing import Annotated
 from fastapi import UploadFile, HTTPException, status
 from PIL import UnidentifiedImageError
 from datetime import date, datetime, time
+<<<<<<< HEAD
 from sqlalchemy import select, func
 from fastapi import HTTPException, status
 from database import get_db
@@ -12,6 +13,10 @@ from auth import CurrentUser, OptionalCurrentUser
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Body
 
+=======
+
+
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,7 +27,11 @@ from postimage_utils import delete_post_image, process_post_image
 from auth import CurrentUser
 from config import settings
 from database import get_db
+<<<<<<< HEAD
 from schemas import PaginatedPostsResponse, PostCreate, PostResponse, PostUpdate, CommentResponse, CommentCreate
+=======
+from schemas import PaginatedPostsResponse, PostCreate, PostResponse, PostUpdate
+>>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
 from starlette.concurrency import run_in_threadpool
 
 router = APIRouter()
@@ -108,6 +117,41 @@ async def get_post(post_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
     if post:
         return post
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+
+@router.get("/date/{selected_date}")
+async def get_posts_by_date(
+    selected_date: date,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+
+    start_datetime = datetime.combine(
+        selected_date,
+        time.min,
+    )
+
+    end_datetime = datetime.combine(
+        selected_date,
+        time.max,
+    )
+
+
+    result = await db.execute(
+        select(models.Post)
+        .options(selectinload(models.Post.author))
+        .where(
+            models.Post.date_posted >= start_datetime,
+            models.Post.date_posted <= end_datetime,
+        )
+        .order_by(models.Post.date_posted.desc())
+    )
+
+
+    posts = result.scalars().all()
+
+    return [
+        PostResponse.model_validate(post)
+        for post in posts
+    ]
 
 
 @router.get("/date/{selected_date}")
@@ -228,6 +272,7 @@ async def delete_comment(
 async def update_post_full(
     post_id: int,
     post_data: PostCreate,
+    
     current_user: CurrentUser,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -282,6 +327,65 @@ async def update_post_partial(
     await db.refresh(post, attribute_names=["author"])
     return post
 
+@router.patch("/{post_id}/picture", response_model=PostResponse)
+async def upload_post_picture(
+        post_id: int,
+        file: UploadFile,
+        current_user: CurrentUser,
+        db: Annotated[AsyncSession, Depends(get_db)],
+    ):
+        result = await db.execute(
+            select(models.Post).where(models.Post.id == post_id)
+        )
+        post = result.scalars().first()
+
+        if not post:
+            raise HTTPException(
+                status_code=404,
+                detail="Post not found",
+            )
+
+        if post.user_id != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="Not authorized to update this post image",
+            )
+
+        content = await file.read()
+
+        if len(content) > settings.max_upload_size_bytes:
+            raise HTTPException(
+                status_code=400,
+                detail="File too large",
+            )
+
+        from postimage_utils import (
+            process_post_image,
+            delete_post_image,
+        )
+
+        try:
+            new_filename = await run_in_threadpool(
+                process_post_image,
+                content,
+            )
+        except UnidentifiedImageError:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid image file",
+            )
+
+        old_filename = post.image_file
+
+        post.image_file = new_filename
+
+        await db.commit()
+        await db.refresh(post)
+
+        if old_filename:
+            delete_post_image(old_filename)
+
+        return post
 
 @router.patch("/{post_id}/picture", response_model=PostResponse)
 async def upload_post_picture(
