@@ -4,12 +4,6 @@ aiosignal
 aiosmtplib==5.1.2
 aiosqlite==0.22.1
 alembic==1.18.5
-anaconda-anon-usage
-anaconda-catalogs
-anaconda-client
-anaconda-cloud-auth
-anaconda-navigator
-anaconda-project
 annotated-doc==0.0.4
 annotated-types==0.7.0
 anthropic==1.1.0
@@ -44,16 +38,6 @@ cloudpathlib==0.24.0
 cloudpickle
 colorama
 comm==0.2.3
-conda
-conda-build
-conda-content-trust
-conda-libmamba-solver
-conda-pack
-conda-package-handling
-conda-repo-cli
-conda-token
-conda_index
-conda_package_streaming
 confection==1.3.3
 config==0.5.1
 contourpy
@@ -135,7 +119,6 @@ keyring
 kiwisolver==1.5.0
 libarchive-c
 libclang==18.1.1
-libmambapy
 lmdb
 locket
 lz4
@@ -145,7 +128,6 @@ MarkupSafe==3.0.3
 matplotlib==3.11.1
 matplotlib-inline==0.2.2
 mdurl==0.1.2
-menuinst
 mistune==3.3.3
 mkl-fft
 mkl-random
@@ -158,7 +140,6 @@ multidict
 murmurhash==1.0.15
 namex==0.1.0
 narwhals==2.24.0
-navigator-updater
 nbclient==0.11.0
 nbconvert==7.17.1
 nbformat
@@ -197,7 +178,6 @@ py-partiql-parser==0.6.3
 py4j==0.10.9.9
 pyarrow
 pycopg==1.2.0
-pycosat
 pycparser==3.0
 pydantic==2.13.4
 pydantic-extra-types==2.11.1
