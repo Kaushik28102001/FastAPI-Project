@@ -1,17 +1,8 @@
-
-<<<<<<< HEAD
-from datetime import datetime,date
-=======
-from datetime import datetime
->>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
 # ============================================================
 # USER SCHEMAS
 # ============================================================
@@ -40,7 +31,7 @@ class UserPublic(BaseModel):
     username: str
     image_file: str | None
     image_path: str
-    is_admin: bool   
+    is_admin: bool
 
 
 class UserPrivate(UserPublic):
@@ -99,7 +90,6 @@ class PostBase(BaseModel):
     """
     Common post fields returned by the API.
     """
-<<<<<<< HEAD
 
     title: str = Field(
         min_length=1,
@@ -110,18 +100,6 @@ class PostBase(BaseModel):
         min_length=1,
     )
 
-=======
-
-    title: str = Field(
-        min_length=1,
-        max_length=100,
-    )
-
-    short_content: str = Field(
-        min_length=1,
-    )
-
->>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
     content: str = Field(
         min_length=1,
     )
@@ -152,6 +130,7 @@ class PostResponse(PostBase):
     image_file: str | None = None
     image_path: str
     author: UserPublic
+
 
 class PaginatedPostsResponse(BaseModel):
     posts: list[PostResponse]
@@ -186,16 +165,18 @@ class ChangePasswordRequest(BaseModel):
         min_length=8,
     )
 
+
 class VerifyOtpRequest(BaseModel):
     email: EmailStr
     otp: str
+
 
 class SendOtpRequest(BaseModel):
     username: str
     email: EmailStr
     password: str
 
-<<<<<<< HEAD
+
 # ============================================================
 # ANNOUNCEMENTS
 # ============================================================
@@ -231,6 +212,8 @@ class AnnouncementResponse(BaseModel):
     title: str
     content: str
     created_at: datetime
+
+
 # ============================================================
 # CALENDAR EVENTS
 # ============================================================
@@ -266,7 +249,8 @@ class CalendarEventResponse(BaseModel):
     description: str | None
     event_date: date
     created_at: datetime
-    
+
+
 # ============================================================
 # ANNOUNCEMENT COMMENTS
 # ============================================================
@@ -284,31 +268,30 @@ class AnnouncementCommentResponse(BaseModel):
     comment: str
     created_at: datetime
 
+
 # ============================================================
 # POST COMMENTS
 # ============================================================
+
 class CommentCreate(BaseModel):
     comment: str = Field(
         min_length=1,
     )
+
+
 class CommentUser(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     username: str
 
-    class Config:
-        from_attributes = True
-
 
 class CommentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     comment: str
     user_id: int
     post_id: int
     created_at: datetime
-    user: CommentUser          # <-- add this
-
-class Config:
-    from_attributes = True
-
-=======
->>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
+    user: CommentUser
