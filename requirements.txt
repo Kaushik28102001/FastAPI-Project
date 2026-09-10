@@ -199,9 +199,6 @@ python-json-logger==4.1.0
 python-multipart==0.0.32
 python-snappy
 pytz
-pywin32>=305
-pywin32-ctypes
-pywinpty==3.0.5
 PyYAML==6.0.3
 pyzmq==27.1.0
 QtPy
@@ -283,7 +280,6 @@ websocket-client==1.9.0
 websockets==16.1.1
 Werkzeug==3.1.8
 wheel==0.43.0
-win-inet-pton
 xgboost==3.1.1
 xmltodict==1.0.4
 xyzservices
