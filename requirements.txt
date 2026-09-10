@@ -199,7 +199,7 @@ python-json-logger==4.1.0
 python-multipart==0.0.32
 python-snappy
 pytz
-pywin32==305.1
+pywin32>=305
 pywin32-ctypes
 pywinpty==3.0.5
 PyYAML==6.0.3
