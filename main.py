@@ -18,28 +18,16 @@ from sqlalchemy.orm import selectinload
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from datetime import date
 from sqlalchemy import func
+from sqlalchemy import text
+from fastapi import Response
 
 import models
 
 from database import Base, engine, get_db
 from config import settings
-<<<<<<< HEAD
-
-from routers import posts, users, announcements, calendar,admin
+from routers import posts, users, announcements, calendar, admin
 
 
-=======
->>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
-from routers import posts, users
-
-
-from sqlalchemy import text
-
-<<<<<<< HEAD
-from sqlalchemy import text
-
-=======
->>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     print("Creating tables...")
@@ -73,11 +61,11 @@ app.include_router(posts.router, prefix="/api/posts", tags=["posts"])
 app.include_router(announcements.router)
 app.include_router(admin.router)
 
-from fastapi import Response
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return Response(status_code=204)
+
 
 @app.get("/", include_in_schema=False, name="home")
 @app.get("/posts", include_in_schema=False, name="posts")
@@ -185,6 +173,7 @@ async def user_posts_page(
         },
     )
 
+
 @app.get(
     "/latest-posts",
     response_class=HTMLResponse,
@@ -210,12 +199,6 @@ app.include_router(
     calendar.router,
     prefix="/api/calendar",
     tags=["calendar"],
-)
-
-app.include_router(
-    announcements.router,
-    prefix="/api/announcements",
-    tags=["announcements"]
 )
 
 
@@ -249,6 +232,8 @@ async def calendar_page(request: Request):
         "title": "Calendar"
     }
 )
+
+
 @app.get("/login", include_in_schema=False)
 async def login_page(request: Request):
     return templates.TemplateResponse(
@@ -339,7 +324,7 @@ async def validation_exception_handler(
         },
         status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
     )
-<<<<<<< HEAD
+
 
 @app.get(
     "/posts/date/{selected_date}",
@@ -372,6 +357,3 @@ async def posts_by_date(
             "selected_date": selected_date,
         },
     )
-
-=======
->>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5

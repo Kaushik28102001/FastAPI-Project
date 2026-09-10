@@ -27,18 +27,9 @@ class Settings(BaseSettings):
 
     reset_token_expire_minutes: int = 60
 
-<<<<<<< HEAD
     # Resend (replaces SMTP)
     resend_api_key: SecretStr
     mail_from: str = "onboarding@resend.dev"
-=======
-    mail_server: str = "localhost"
-    mail_port: int = 587
-    mail_username: str = ""
-    mail_password: SecretStr = SecretStr("")
-    mail_from: str = "noreply@example.com"
-    mail_use_tls: bool = True
->>>>>>> 95033b8a5e6fd5f7ff9d49ae8b993f341984b4a5
 
     frontend_url: str = "http://localhost:8000"
 
